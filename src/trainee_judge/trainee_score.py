@@ -131,15 +131,20 @@ def _index_rubric_items(rubric: Dict[str, Any]) -> Dict[str, Dict[str, Any]]:
 
 
 def _ensure_grade_has_all_items(
-    grade: Dict[str, Any],
+    grade: Any,
     rubric_item_ids: List[str],
 ) -> Dict[str, Any]:
     """
     If the judge output is missing item ids (e.g., schema was not enforced),
     fill them with achieved=false defaults to prevent crashes.
+    Also handles the case where the LLM might have returned a non-dict output.
     """
-    grade = dict(grade or {})
-    item_results = dict(grade.get("item_results") or {})
+    if not isinstance(grade, dict):
+        grade = {}
+    
+    item_results = grade.get("item_results")
+    if not isinstance(item_results, dict):
+        item_results = {}
     for item_id in rubric_item_ids:
         if item_id not in item_results:
             item_results[item_id] = {

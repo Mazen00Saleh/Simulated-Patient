@@ -218,10 +218,20 @@ def judge_trainee_with_groq(
     if grade.get("rubric_version") != rb.get("version", ""):
         grade["rubric_version"] = rb.get("version", "")
 
+    usage = getattr(resp, "usage", None)
+    usage_dict = None
+    if usage:
+        # Convert the usage object to a plain dict to avoid serialization issues
+        usage_dict = {
+            "prompt_tokens": getattr(usage, "prompt_tokens", 0),
+            "completion_tokens": getattr(usage, "completion_tokens", 0),
+            "total_tokens": getattr(usage, "total_tokens", 0),
+        }
+
     meta = {
         "model": getattr(resp, "model", None),
         "system_fingerprint": getattr(resp, "system_fingerprint", None),
-        "usage": getattr(resp, "usage", None),
+        "usage": usage_dict,
         "seed": config.seed,
         "temperature": config.temperature,
         "strict_schema": config.strict_schema,
