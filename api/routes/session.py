@@ -41,6 +41,26 @@ def get_session_time(session_id: str) -> SessionTimeResponse:
     )
 
 
+@router.get("/{session_id}/profile")
+def get_session_profile_endpoint(session_id: str):
+    """
+    Return the PatientProfile for a session as a JSON dict.
+    Used by the frontend to display the examiner profile view.
+    """
+    import dataclasses
+    from api.database import get_session_profile as _get_profile
+    info = get_session_info(session_id)
+    if info is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Session not found.")
+    profile = _get_profile(session_id)
+    if profile is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Profile not available for this session."
+        )
+    return dataclasses.asdict(profile)
+
+
 @router.get("/{session_id}/results", response_model=SessionResultsResponse)
 def get_session_results(session_id: str) -> SessionResultsResponse:
     """Provide a summary of strengths, weaknesses and improvement suggestions based on last trainee eval."""

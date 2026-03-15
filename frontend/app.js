@@ -37,6 +37,21 @@ const chatEmpty = $('chat-empty');
 const chatInput = $('chat-input');
 const btnSend = $('btn-send');
 
+const profileSection = $('profile-section');
+const profileToggle = $('profile-toggle');
+const profileContent = $('profile-content');
+const profileAge = $('profile-age');
+const profileGender = $('profile-gender');
+const profileOccupation = $('profile-occupation');
+const profileChiefComplaint = $('profile-chief-complaint');
+const profileSeverity = $('profile-severity');
+const profileOnset = $('profile-onset');
+const profileResponseStyle = $('profile-response-style');
+const profileEmotionalTone = $('profile-emotional-tone');
+const profileRisk = $('profile-risk');
+const profileRiskDetail = $('profile-risk-detail');
+const profileRiskText = $('profile-risk-text');
+
 const btnEvalPatient = $('btn-eval-patient');
 const roleThresh = $('role-thresh');
 const roleThreshVal = $('role-thresh-val');
@@ -70,6 +85,12 @@ qsa('.tab-btn').forEach(btn => {
         btn.classList.add('active');
         $('tab-' + btn.dataset.tab).classList.add('active');
     });
+});
+
+// ── Profile Toggle ─────────────────────────
+profileToggle.addEventListener('click', () => {
+    profileContent.classList.toggle('collapsed');
+    profileToggle.classList.toggle('collapsed');
 });
 
 // ── Inspector Panel ────────────────────────
@@ -151,6 +172,43 @@ function hideResults() {
     resultsPanel.classList.remove('visible');
 }
 
+// ── Fetch and Display Patient Profile ──────
+async function loadPatientProfile(sid) {
+    try {
+        const resp = await fetch(`${API}/session/${sid}/profile`);
+        if (!resp.ok) return; // Profile not available
+        const profile = await resp.json();
+        updateInspector('GET', `${API}/session/${sid}/profile`, resp.status, profile);
+
+        // Populate profile UI
+        profileAge.textContent = profile.age;
+        profileGender.textContent = profile.gender;
+        profileOccupation.textContent = profile.occupation;
+        profileChiefComplaint.textContent = profile.chief_complaint;
+        profileSeverity.textContent = profile.symptom_severity;
+        profileOnset.textContent = profile.symptom_onset;
+        profileResponseStyle.textContent = profile.response_style;
+        profileEmotionalTone.textContent = profile.emotional_tone;
+
+        // Risk status
+        if (profile.risk_positive) {
+            profileRisk.textContent = 'YES';
+            profileRisk.classList.add('risk-positive');
+            profileRiskText.textContent = profile.risk_detail;
+            profileRiskDetail.style.display = 'block';
+        } else {
+            profileRisk.textContent = 'No';
+            profileRisk.classList.remove('risk-positive');
+            profileRiskDetail.style.display = 'none';
+        }
+
+        // Show profile section
+        profileSection.classList.remove('hidden');
+    } catch (err) {
+        console.error('Could not load profile:', err);
+    }
+}
+
 // ── Slider live-values ─────────────────────
 roleThresh.addEventListener('input', () => {
     roleThreshVal.textContent = parseFloat(roleThresh.value).toFixed(2);
@@ -175,6 +233,9 @@ function setSessionActive(id, condition, language) {
     btnSend.disabled = false;
     chatEmpty.classList.add('hidden');
 
+    // Load and display patient profile
+    loadPatientProfile(id);
+
     // Start the timer
     startTimer();
 }
@@ -194,6 +255,7 @@ function clearSession() {
     chatArea.appendChild(chatEmpty);
     chatEmpty.classList.remove('hidden');
 
+    profileSection.classList.add('hidden');
     patientResults.classList.add('hidden');
     traineeResults.classList.add('hidden');
 

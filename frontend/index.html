@@ -89,6 +89,68 @@
 
             <!-- ── TAB 1: CHAT ── -->
             <div class="tab-pane active" id="tab-chat">
+                <!-- Patient Profile Section -->
+                <div class="profile-section hidden" id="profile-section">
+                    <div class="profile-header">
+                        <h3>Patient Profile (Examiner View)</h3>
+                        <button class="profile-toggle" id="profile-toggle">▼</button>
+                    </div>
+                    <div class="profile-content" id="profile-content">
+                        <div class="profile-grid">
+                            <div class="profile-card">
+                                <h4>Demographics</h4>
+                                <div class="profile-item">
+                                    <span class="label">Age:</span>
+                                    <span class="value" id="profile-age">—</span>
+                                </div>
+                                <div class="profile-item">
+                                    <span class="label">Gender:</span>
+                                    <span class="value" id="profile-gender">—</span>
+                                </div>
+                                <div class="profile-item">
+                                    <span class="label">Occupation:</span>
+                                    <span class="value" id="profile-occupation">—</span>
+                                </div>
+                            </div>
+
+                            <div class="profile-card">
+                                <h4>Clinical Presentation</h4>
+                                <div class="profile-item">
+                                    <span class="label">Chief Complaint:</span>
+                                    <span class="value" id="profile-chief-complaint">—</span>
+                                </div>
+                                <div class="profile-item">
+                                    <span class="label">Severity:</span>
+                                    <span class="value" id="profile-severity">—</span>
+                                </div>
+                                <div class="profile-item">
+                                    <span class="label">Onset:</span>
+                                    <span class="value" id="profile-onset">—</span>
+                                </div>
+                            </div>
+
+                            <div class="profile-card">
+                                <h4>Communication Style</h4>
+                                <div class="profile-item">
+                                    <span class="label">Response Style:</span>
+                                    <span class="value" id="profile-response-style">—</span>
+                                </div>
+                                <div class="profile-item">
+                                    <span class="label">Emotional Tone:</span>
+                                    <span class="value" id="profile-emotional-tone">—</span>
+                                </div>
+                                <div class="profile-item">
+                                    <span class="label">Risk Status:</span>
+                                    <span class="value risk-indicator" id="profile-risk">—</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="profile-details" id="profile-risk-detail" style="display: none;">
+                            <strong>Risk Detail:</strong> <span id="profile-risk-text"></span>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="chat-area" id="chat-area">
                     <div class="empty-state" id="chat-empty">
                         <div class="empty-icon">🏥</div>

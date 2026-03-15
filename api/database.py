@@ -38,6 +38,8 @@ def init_db():
     cols = [row['name'] for row in cursor.fetchall()]
     if 'expires_at' not in cols:
         cursor.execute("ALTER TABLE sessions ADD COLUMN expires_at TIMESTAMP")
+    if 'profile' not in cols:
+        cursor.execute("ALTER TABLE sessions ADD COLUMN profile TEXT")
     
     # Table for Messages (The Memory)
     cursor.execute('''
@@ -67,16 +69,43 @@ def init_db():
     conn.close()
 
 # CRUD Helpers
-def save_session(session_id: str, condition: str, language: str):
+def save_session(session_id: str, condition: str, language: str, profile_json: str = None):
     """Add a new session and record when it should expire (10 minutes from creation)."""
     expires_at = datetime.utcnow() + timedelta(minutes=10)
     conn = get_db_connection()
     conn.execute(
-        "INSERT INTO sessions (session_id, condition, language, expires_at) VALUES (?, ?, ?, ?)",
-        (session_id, condition, language, expires_at.isoformat()),
+        "INSERT INTO sessions (session_id, condition, language, expires_at, profile) VALUES (?, ?, ?, ?, ?)",
+        (session_id, condition, language, expires_at.isoformat(), profile_json),
     )
     conn.commit()
     conn.close()
+
+def get_session_profile(session_id: str):
+    """
+    Return a PatientProfile dataclass for a session, or None if not available.
+    """
+    import json as _json
+    from src.patient_sim.interfaces import PatientProfile
+    conn = get_db_connection()
+    row = conn.execute(
+        "SELECT condition, language, profile FROM sessions WHERE session_id = ?",
+        (session_id,)
+    ).fetchone()
+    conn.close()
+    if not row or not row["profile"]:
+        return None
+    try:
+        data = _json.loads(row["profile"])
+        # Remove condition/language if they were serialized into the blob
+        data.pop("condition", None)
+        data.pop("language", None)
+        return PatientProfile(
+            condition=row["condition"],
+            language=row["language"],
+            **data
+        )
+    except Exception:
+        return None
 
 def add_message(session_id: str, role: str, content: str):
     conn = get_db_connection()

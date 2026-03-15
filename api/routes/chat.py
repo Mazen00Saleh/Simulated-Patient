@@ -9,6 +9,7 @@ Chat endpoints:
 from __future__ import annotations
 
 import os
+import json as _json
 from typing import Annotated
 from datetime import datetime
 
@@ -30,10 +31,11 @@ from api.database import (
     delete_session_data,
     is_session_active,
     time_left_seconds,
+    get_session_profile,
 )
 from src.patient_sim.groq_patient_sim import GroqPatientSimulator
 from src.patient_sim.interfaces import PatientSimConfig
-from src.patient_sim.prompts import build_system_prompt
+from src.patient_sim.prompts import build_system_prompt, build_system_prompt_from_profile
 
 router = APIRouter(prefix="/chat", tags=["Chat"])
 
@@ -50,7 +52,10 @@ def _require_session(session_id: str):
 
 
 @router.post("/start", response_model=StartSessionResponse, status_code=status.HTTP_201_CREATED)
-def start_session(body: StartSessionRequest) -> StartSessionResponse:
+def start_session(
+    body: StartSessionRequest,
+    simulator: Annotated[GroqPatientSimulator, Depends(get_patient_simulator)],
+) -> StartSessionResponse:
     """
     Create a new simulation session.
 
@@ -66,9 +71,25 @@ def start_session(body: StartSessionRequest) -> StartSessionResponse:
     session_id = str(uuid.uuid4())
     language = body.language if body.language in ("English", "Arabic") else "English"
     
+    # Generate a random patient profile for this session
+    try:
+        profile = simulator.generate_profile(body.condition.strip(), language)
+        # Serialize profile to JSON for storage, excluding condition/language
+        # (those are already stored as separate columns)
+        import dataclasses
+        profile_dict = dataclasses.asdict(profile)
+        profile_dict.pop("condition", None)
+        profile_dict.pop("language", None)
+        profile_json = _json.dumps(profile_dict)
+        system_prompt_text = build_system_prompt_from_profile(profile)
+    except Exception:
+        # Fallback: use the old static system prompt if profile generation fails
+        profile_json = None
+        system_prompt_text = build_system_prompt(body.condition.strip(), language)
+    
     # Save session and initial system prompt
-    save_session(session_id, body.condition.strip(), language)
-    add_message(session_id, "system", build_system_prompt(body.condition, language))
+    save_session(session_id, body.condition.strip(), language, profile_json=profile_json)
+    add_message(session_id, "system", system_prompt_text)
 
     # fetch the record to obtain expires_at value
     info = get_session_info(session_id) or {}
