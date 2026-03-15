@@ -7,11 +7,44 @@ This makes it easy to swap Groq/OpenAI/local models without touching Streamlit U
 
 from __future__ import annotations
 
-from dataclasses import dataclass
-from typing import Any, Dict, List, Protocol
+from dataclasses import dataclass, field
+from typing import Any, Dict, List, Optional, Protocol
 
 
 Conversation = List[Dict[str, str]]
+
+
+@dataclass
+class PatientProfile:
+    condition: str
+    language: str
+
+    # Demographics
+    age: int = 35
+    gender: str = "unspecified"
+    occupation: str = "unspecified"
+
+    # Clinical content
+    chief_complaint: str = ""
+    symptom_onset: str = ""
+    symptom_severity: str = "moderate"        # mild | moderate | severe
+    relevant_life_events: List[str] = field(default_factory=list)
+    past_psychiatric_history: str = ""
+    current_medications: List[str] = field(default_factory=list)
+    substance_use: str = ""
+
+    # Risk (deterministic flag — drives rubric gate patient_risk_positive)
+    risk_positive: bool = False
+    risk_detail: str = ""
+
+    # Behavioral style
+    response_style: str = "terse"             # terse | normal | verbose
+    emotional_tone: str = "flat"              # flat | anxious | guarded | tearful | irritable
+
+    # Disclosure model
+    freely_disclose: List[str] = field(default_factory=list)
+    disclose_if_asked: List[str] = field(default_factory=list)
+    resist_disclosing: List[str] = field(default_factory=list)
 
 
 @dataclass(frozen=True)

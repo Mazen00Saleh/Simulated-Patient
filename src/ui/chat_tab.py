@@ -11,13 +11,21 @@ from typing import Any, Dict, List
 import streamlit as st
 
 from src.patient_sim.interfaces import PatientSimConfig
-from src.patient_sim.prompts import build_system_prompt
+from src.patient_sim.prompts import build_system_prompt, build_system_prompt_from_profile
 from src.state.session_keys import ACTIVE_CONDITION, ACTIVE_LANGUAGE, CONVERSATION_HISTORY
 from src.state.session_store import append_message, clear_all, get_history, set_conversation
 
 
-def _init_history(condition: str, language: str) -> List[Dict[str, str]]:
-    return [{"role": "system", "content": build_system_prompt(condition, language)}]
+def _init_history(
+    condition: str,
+    language: str,
+    profile=None,
+) -> List[Dict[str, str]]:
+    if profile is not None:
+        system_prompt = build_system_prompt_from_profile(profile)
+    else:
+        system_prompt = build_system_prompt(condition, language)
+    return [{"role": "system", "content": system_prompt}]
 
 
 def render_chat_tab(*, patient_simulator: Any) -> None:
@@ -30,7 +38,18 @@ def render_chat_tab(*, patient_simulator: Any) -> None:
             if not condition:
                 st.warning("Please enter a condition first.")
             else:
-                set_conversation(_init_history(condition, language), condition=condition, language=language)
+                with st.spinner("Generating patient profile..."):
+                    try:
+                        profile = patient_simulator.generate_profile(condition, language)
+                        st.session_state["patient_profile"] = profile
+                    except Exception:
+                        profile = None
+                        st.session_state["patient_profile"] = None
+                set_conversation(
+                    _init_history(condition, language, profile=st.session_state.get("patient_profile")),
+                    condition=condition,
+                    language=language,
+                )
 
     with col2:
         if st.button("Clear everything"):
@@ -42,7 +61,13 @@ def render_chat_tab(*, patient_simulator: Any) -> None:
     # Auto-init once user provides a condition.
     history = get_history()
     if condition and not history:
-        set_conversation(_init_history(condition, language), condition=condition, language=language)
+        try:
+            profile = patient_simulator.generate_profile(condition, language)
+            st.session_state["patient_profile"] = profile
+        except Exception:
+            profile = None
+            st.session_state["patient_profile"] = None
+        set_conversation(_init_history(condition, language, profile=st.session_state.get("patient_profile")), condition=condition, language=language)
         history = get_history()
 
     active_condition = st.session_state.get(ACTIVE_CONDITION, "")
@@ -75,3 +100,24 @@ def render_chat_tab(*, patient_simulator: Any) -> None:
                 st.chat_message("user").markdown(message.get("content", ""))
             elif message.get("role") == "assistant":
                 st.chat_message("assistant").markdown(message.get("content", ""))
+
+    # Examiner-only profile view
+    profile = st.session_state.get("patient_profile")
+    if profile is not None:
+        import dataclasses
+        with st.expander("Patient profile (examiner view — not visible to trainee)"):
+            col1, col2, col3 = st.columns(3)
+            with col1:
+                st.write(f"**Age:** {profile.age}")
+                st.write(f"**Gender:** {profile.gender}")
+                st.write(f"**Occupation:** {profile.occupation}")
+                st.write(f"**Severity:** {profile.symptom_severity}")
+            with col2:
+                st.write(f"**Response style:** {profile.response_style}")
+                st.write(f"**Emotional tone:** {profile.emotional_tone}")
+                st.write(f"**Risk positive:** {'YES' if profile.risk_positive else 'No'}")
+            with col3:
+                st.write(f"**Onset:** {profile.symptom_onset}")
+                st.write(f"**Chief complaint:** {profile.chief_complaint}")
+            if profile.risk_positive:
+                st.warning(f"RISK: {profile.risk_detail}")
