@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import os
 from typing import Annotated
+from datetime import datetime
 
 from fastapi import APIRouter, Depends, HTTPException, status
 
@@ -26,7 +27,9 @@ from api.database import (
     add_message,
     get_session_history,
     get_session_info,
-    delete_session_data
+    delete_session_data,
+    is_session_active,
+    time_left_seconds,
 )
 from src.patient_sim.groq_patient_sim import GroqPatientSimulator
 from src.patient_sim.interfaces import PatientSimConfig
@@ -67,7 +70,18 @@ def start_session(body: StartSessionRequest) -> StartSessionResponse:
     save_session(session_id, body.condition.strip(), language)
     add_message(session_id, "system", build_system_prompt(body.condition, language))
 
-    return StartSessionResponse(session_id=session_id, condition=body.condition.strip(), language=language)
+    # fetch the record to obtain expires_at value
+    info = get_session_info(session_id) or {}
+    exp = info.get("expires_at")
+    if isinstance(exp, datetime):
+        exp = exp.isoformat()
+
+    return StartSessionResponse(
+        session_id=session_id,
+        condition=body.condition.strip(),
+        language=language,
+        expires_at=exp,
+    )
 
 
 @router.post("/message", response_model=ChatMessageResponse)
@@ -85,6 +99,13 @@ def send_message(
         )
 
     _require_session(body.session_id)
+
+    # enforce the 10‑minute timer
+    if not is_session_active(body.session_id):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Session has expired; chat is no longer active.",
+        )
 
     if not body.message.strip():
         raise HTTPException(

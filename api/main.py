@@ -59,12 +59,15 @@ async def read_index():
 from api.routes.chat import router as chat_router
 from api.routes.patient_eval import router as patient_eval_router
 from api.routes.trainee_eval import router as trainee_eval_router
+from api.routes.session import router as session_router
 
 API_V1_PREFIX = "/api/v1"
 
 app.include_router(chat_router, prefix=API_V1_PREFIX)
 app.include_router(patient_eval_router, prefix=API_V1_PREFIX)
 app.include_router(trainee_eval_router, prefix=API_V1_PREFIX)
+# session endpoints (timer, results, manual end)
+app.include_router(session_router, prefix=API_V1_PREFIX)
 
 @app.get("/health", tags=["Meta"])
 def health() -> dict:

@@ -7,6 +7,8 @@ const API = '/api/v1';
 // ── State ──────────────────────────────────
 let sessionId = null;
 let isPending = false;
+let timerInterval = null;
+let sessionExpired = false;
 
 // ── DOM Refs ───────────────────────────────
 const $ = id => document.getElementById(id);
@@ -20,6 +22,15 @@ const btnStart = $('btn-start');
 const btnDelete = $('btn-delete');
 const statusDot = $('status-dot');
 const statusText = $('status-text');
+
+const timerDisplay = $('timer-display');
+const timerText = $('timer-text');
+
+const resultsPanel = $('results-panel');
+const closeResults = $('close-results');
+const strengthsList = $('strengths-list');
+const weaknessesList = $('weaknesses-list');
+const improvementText = $('improvement-text');
 
 const chatArea = $('chat-area');
 const chatEmpty = $('chat-empty');
@@ -77,6 +88,69 @@ function updateInspector(method, url, status, data) {
     }
 }
 
+// ── Timer & Results Functions ──────────────
+function startTimer() {
+    if (timerInterval) clearInterval(timerInterval);
+    timerDisplay.classList.remove('hidden');
+    sessionExpired = false;
+    updateTimerDisplay();
+
+    timerInterval = setInterval(async () => {
+        if (!sessionId) return;
+        try {
+            const resp = await fetch(`${API}/session/${sessionId}/time`);
+            const data = await resp.json();
+            updateInspector('GET', `${API}/session/${sessionId}/time`, resp.status, data);
+
+            if (data.expired) {
+                sessionExpired = true;
+                clearInterval(timerInterval);
+                timerDisplay.classList.add('expired');
+                disableChat();
+                showResults();
+            } else {
+                updateTimerDisplay(data.remaining_seconds);
+            }
+        } catch (err) {
+            console.error('Timer poll failed:', err);
+        }
+    }, 1000);
+}
+
+function updateTimerDisplay(seconds) {
+    if (seconds === undefined) {
+        timerText.textContent = '10:00';
+        return;
+    }
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    timerText.textContent = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+}
+
+function disableChat() {
+    chatInput.disabled = true;
+    btnSend.disabled = true;
+    chatInput.placeholder = 'Session expired - chat disabled';
+}
+
+function showResults() {
+    if (!sessionId) return;
+    fetch(`${API}/session/${sessionId}/results`)
+        .then(resp => resp.json())
+        .then(data => {
+            updateInspector('GET', `${API}/session/${sessionId}/results`, 200, data);
+            strengthsList.innerHTML = data.strengths.map(s => `<li>${s}</li>`).join('');
+            weaknessesList.innerHTML = data.weaknesses.map(w => `<li>${w}</li>`).join('');
+            improvementText.value = data.improvement;
+            resultsPanel.classList.add('visible');
+        })
+        .catch(err => console.error('Results fetch failed:', err));
+}
+
+function hideResults() {
+    resultsPanel.classList.remove('visible');
+}
+
 // ── Slider live-values ─────────────────────
 roleThresh.addEventListener('input', () => {
     roleThreshVal.textContent = parseFloat(roleThresh.value).toFixed(2);
@@ -100,6 +174,9 @@ function setSessionActive(id, condition, language) {
     chatInput.disabled = false;
     btnSend.disabled = false;
     chatEmpty.classList.add('hidden');
+
+    // Start the timer
+    startTimer();
 }
 
 function clearSession() {
@@ -119,6 +196,16 @@ function clearSession() {
 
     patientResults.classList.add('hidden');
     traineeResults.classList.add('hidden');
+
+    // Stop timer and hide results
+    if (timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+    }
+    timerDisplay.classList.add('hidden');
+    timerDisplay.classList.remove('expired');
+    sessionExpired = false;
+    hideResults();
 }
 
 // ── API helpers ───────────────────────────
@@ -189,7 +276,7 @@ function addTyping() {
 
 async function sendMessage() {
     const text = chatInput.value.trim();
-    if (!text || isPending || !sessionId) return;
+    if (!text || isPending || !sessionId || sessionExpired) return;
 
     chatInput.value = '';
     chatInput.style.height = 'auto';
@@ -389,3 +476,6 @@ function renderTraineeResults(d) {
 
     return html;
 }
+
+// ── Results Panel ──────────────────────────
+closeResults.addEventListener('click', hideResults);

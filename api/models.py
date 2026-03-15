@@ -23,6 +23,7 @@ class StartSessionResponse(BaseModel):
     session_id: str
     condition: str
     language: str
+    expires_at: Optional[str] = None  # ISO timestamp when session will expire
 
 
 class ChatMessageRequest(BaseModel):
@@ -41,6 +42,23 @@ class ChatMessageResponse(BaseModel):
 class DeleteSessionResponse(BaseModel):
     session_id: str
     deleted: bool
+
+
+# ---------------------------------------------------------------------------
+# Session timer / results
+# ---------------------------------------------------------------------------
+
+class SessionTimeResponse(BaseModel):
+    session_id: str
+    remaining_seconds: float
+    expired: bool
+
+
+class SessionResultsResponse(BaseModel):
+    session_id: str
+    strengths: List[str]
+    weaknesses: List[str]
+    improvement: str
 
 
 # ---------------------------------------------------------------------------
