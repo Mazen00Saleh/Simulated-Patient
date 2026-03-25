@@ -1144,3 +1144,108 @@ body {
     opacity: 0.5;
     cursor: not-allowed;
 }
+
+/* ── RATIONALE MODAL ── */
+.rationale-btn {
+    color: var(--accent);
+    cursor: pointer;
+    text-decoration: underline;
+    transition: color 0.2s;
+}
+
+.rationale-btn:hover {
+    color: #8b85ff;
+}
+
+.rationale-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+}
+
+.rationale-modal-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    cursor: pointer;
+}
+
+.rationale-modal-content {
+    position: relative;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    max-width: 600px;
+    width: 90%;
+    max-height: 80vh;
+    overflow-y: auto;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+}
+
+.rationale-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface2);
+    border-radius: var(--radius) var(--radius) 0 0;
+}
+
+.rationale-modal-header h3 {
+    font-size: 1rem;
+    font-weight: 600;
+    font-family: var(--mono);
+}
+
+.rationale-modal-close {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    font-size: 1.25rem;
+    cursor: pointer;
+    padding: 0.25rem;
+    border-radius: 4px;
+    transition: background 0.2s, color 0.2s;
+}
+
+.rationale-modal-close:hover {
+    background: var(--border);
+    color: var(--text);
+}
+
+.rationale-modal-body {
+    padding: 1.5rem;
+}
+
+.rationale-field {
+    margin-bottom: 1.25rem;
+}
+
+.rationale-field:last-child {
+    margin-bottom: 0;
+}
+
+.rationale-field strong {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: var(--accent);
+    font-size: 0.875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.rationale-field p {
+    color: var(--text);
+    line-height: 1.6;
+    word-break: break-word;
+}

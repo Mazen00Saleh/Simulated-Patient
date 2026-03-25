@@ -74,16 +74,11 @@ def build_judge_output_schema(rubric: Dict[str, Any]) -> Dict[str, Any]:
     per_item_schema: Dict[str, Any] = {
         "type": "object",
         "properties": {
-            "achieved": {"type": "boolean"},
-            "confidence": {"type": "number", "minimum": 0.0, "maximum": 1.0},
-            "evidence_turns": {
-                "type": "array",
-                "items": {"type": "integer", "minimum": 1},
-                "minItems": 0,
-            },
+            "item_score": {"type": "integer", "enum": [0, 1, 2]},
             "rationale": {"type": "string"},
+
         },
-        "required": ["achieved", "confidence", "evidence_turns", "rationale"],
+        "required": ["item_score", "rationale"],
         "additionalProperties": False,
     }
 

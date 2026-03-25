@@ -18,5 +18,5 @@ def get_logger(name: str = "app") -> logging.Logger:
         fmt = logging.Formatter("%(asctime)s | %(levelname)s | %(name)s | %(message)s")
         handler.setFormatter(fmt)
         logger.addHandler(handler)
-        logger.setLevel(logging.INFO)
+        logger.setLevel(logging.DEBUG)  # Changed from INFO to DEBUG to capture all diagnostic messages
     return logger
