@@ -36,6 +36,7 @@ class TraineeEvalPipeline:
         rubric: Optional[Dict[str, Any]] = None,
         rubric_path: Optional[str] = None,
         judge_config: Optional[Any] = None,
+        profile: Optional[Any] = None,
     ) -> TraineeEvalResult:
         rb = rubric or self.load_rubric(rubric_path)
 
@@ -54,5 +55,6 @@ class TraineeEvalPipeline:
             rubric=rb,
             language=language,
             judge_grade=grade,
+            profile=profile,
         )
         return TraineeEvalResult(scored=scored, judge_grade=grade, judge_meta=meta)

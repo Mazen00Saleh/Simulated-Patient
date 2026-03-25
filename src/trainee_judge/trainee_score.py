@@ -25,11 +25,14 @@ This file DOES NOT call any LLM.
 from __future__ import annotations
 
 import json
+import logging
 import re
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 from dotenv import load_dotenv
 from src.utils.paths import default_rubric_path
+
+logger = logging.getLogger(__name__)
 
 # Optional: reuse the same default rubric path convention as other files.
 DEFAULT_RUBRIC_PATH = default_rubric_path()
@@ -41,6 +44,9 @@ load_dotenv()
 _AR_DIACRITICS = re.compile(r"[\u064B-\u0652\u0670]")
 _AR_ALEF = re.compile(r"[إأآا]")
 _AR_YAA = re.compile(r"[ىي]")
+
+# Scoring thresholds
+ITEM_SCORE_PASS_THRESHOLD = 2  # Only item_score >= 2 counts as achieved (0=no, 1=partial, 2=clear)
 
 
 def normalize(text: str) -> str:
@@ -99,16 +105,22 @@ def patient_risk_positive(conversation_history: List[Dict[str, str]], rubric: Di
     return any_match(patterns, patient_text)
 
 
-def is_gate_active(gate: Optional[str], conversation_history: List[Dict[str, str]], rubric: Dict[str, Any], language: str) -> bool:
+def is_gate_active(gate: Optional[str], conversation_history: List[Dict[str, str]], rubric: Dict[str, Any], language: str, profile: Optional[Any] = None) -> bool:
     """
     Returns True if a rubric item gate condition is active (meaning the item should be scored).
-    Unknown gates default to True (so you don't silently hide items).
+    If profile is provided and has risk_positive, uses that instead of pattern detection.
+    Unknown gates default to True (so you don't silently hide items) but log a warning.
     """
     if not gate:
         return True
     if gate == "patient_risk_positive":
+        # Prefer deterministic profile flag if available
+        if profile is not None and hasattr(profile, "risk_positive"):
+            return bool(profile.risk_positive)
+        # Fallback to pattern detection if profile not available
         return patient_risk_positive(conversation_history, rubric, language)
     # Add more gates here as you design them.
+    logger.warning(f"Unknown gate '{gate}' for item — defaulting to included. Check rubric.")
     return True
 
 
@@ -166,6 +178,7 @@ def score_from_judge_output(
     judge_grade: Dict[str, Any],
     *,
     attach_item_text: bool = True,
+    profile: Optional[Any] = None,
 ) -> Dict[str, Any]:
     """
     Deterministically compute scores from judge output + rubric.
@@ -192,10 +205,25 @@ def score_from_judge_output(
         it = item_index[item_id]
         weight = float(it.get("weight", 0) or 0)
         gate = it.get("gate")
-        gate_active = is_gate_active(gate, conversation_history, rubric, language)
+        gate_active = is_gate_active(gate, conversation_history, rubric, language, profile=profile)
 
         jr = (judge_grade.get("item_results") or {}).get(item_id) or {}
-        achieved = bool(jr.get("achieved", False))
+        
+        # NEW (CHANGE 2): Read item_score (0/1/2) with backward compatibility for old achieved boolean
+        item_score = jr.get("item_score", None)
+        if item_score is None and "achieved" in jr:
+            # Backward compatibility: convert old boolean to new 3-point scale
+            achieved_bool = bool(jr.get("achieved", False))
+            item_score = 2 if achieved_bool else 0
+        else:
+            item_score = int(item_score or 0)
+            if item_score not in (0, 1, 2):
+                item_score = 0
+        
+        # Deterministic: achieved = (item_score >= ITEM_SCORE_PASS_THRESHOLD)
+        # achieved determines pass/fail status, but scoring uses ordinal value (0/1/2)
+        achieved = item_score >= ITEM_SCORE_PASS_THRESHOLD
+        
         confidence = float(jr.get("confidence", 0.0) or 0.0)
         evidence_turns = list(jr.get("evidence_turns") or [])
         rationale = str(jr.get("rationale", "") or "")
@@ -204,7 +232,11 @@ def score_from_judge_output(
 
         if included:
             total_possible += weight
-            points = weight if achieved else 0.0
+            # NEW: Partial credit based on 3-point ordinal score
+            # score 0 (not shown) → 0% of weight
+            # score 1 (partial)    → 50% of weight
+            # score 2 (clear)      → 100% of weight
+            points = (item_score / 2.0) * weight
             total_score += points
         else:
             points = 0.0
@@ -228,6 +260,7 @@ def score_from_judge_output(
                 "included": included,
                 "gate": gate,
                 "achieved": achieved,
+                "item_score": item_score,  # NEW: Add 3-point ordinal score for transparency
                 "points_awarded": points,
                 "confidence": round(confidence, 3),
                 "evidence_turns": evidence_turns,

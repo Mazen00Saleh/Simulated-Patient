@@ -160,19 +160,38 @@ def render_trainee_eval_tab(*, trainee_pipeline: Any, legacy_regex_evaluator: Op
             st.write(f"- **{f.get('type')}** — {f.get('message')} (item: {f.get('item_id')})")
 
     with st.expander("Checklist (per item)", expanded=True):
-        rows = []
         for it in scored.get("items", []):
-            rows.append(
-                {
-                    "id": it.get("id"),
-                    "points": f"{it.get('points_awarded')}/{it.get('weight')}" if it.get("included") else "N/A (gated)",
-                    "achieved": it.get("achieved"),
-                    "confidence": it.get("confidence"),
-                    "evidence_turns": ",".join(str(x) for x in it.get("evidence_turns", [])),
-                    "rationale": it.get("rationale", ""),
-                }
-            )
-        st.dataframe(rows, use_container_width=True)
+            # Map 3-point score to readable label and status
+            item_score = it.get("item_score", 0)
+            
+            # Status based on 3-point score (not just achieved boolean)
+            if not it.get("included"):
+                status = "—  Gated"
+            elif item_score == 2:
+                status = "✅ Met"
+            elif item_score == 1:
+                status = "⚠️  Partial"
+            else:
+                status = "❌ Not Shown"
+            
+            item_id = it.get("id", "")
+            points_str = f"{round(it.get('points_awarded', 0), 2)}/{it.get('weight')}" if it.get("included") else "N/A"
+            evidence_str = ",".join(str(x) for x in it.get("evidence_turns", []))
+            rationale_full = it.get("rationale", "")
+            
+            # Create expandable item with summary line
+            with st.expander(f"**{item_id}** — {status} | Points: {points_str}"):
+                col1, col2 = st.columns([1, 2])
+                with col1:
+                    st.write("**Status:**", status)
+                    st.write("**Points:**", points_str)
+                    if evidence_str:
+                        st.write("**Evidence (turns):**", evidence_str)
+                with col2:
+                    st.write("**Description:**", it.get("desc", ""))
+                
+                st.write("**Full Rationale:**")
+                st.write(rationale_full)
 
     with st.expander("Feedback", expanded=True):
         for tip in scored.get("summary_feedback", []):
