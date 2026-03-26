@@ -14,7 +14,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query, status
 
 from api.dependencies import get_trainee_pipeline
 from api.models import RubricResponse, TraineeEvalRequest, TraineeEvalResponse
-from api.database import get_session_info, get_session_history, save_evaluation
+from api.database import get_session_info, get_session_history, save_evaluation, get_session_profile
 from src.evaluation.trainee.pipeline import TraineeEvalPipeline
 from src.trainee_judge.trainee_judge_groq import GroqJudgeConfig
 
@@ -63,10 +63,12 @@ def evaluate_trainee(
         temperature=0.0,
         seed=body.seed,
         reasoning_effort=body.reasoning_effort or "medium",
-        reasoning_format="hidden",
         max_completion_tokens=body.max_completion_tokens,
         strict_schema=body.strict_schema,
     )
+
+    # Get patient profile for risk gate detection
+    profile = get_session_profile(body.session_id)
 
     try:
         result = pipeline.run(
@@ -75,6 +77,7 @@ def evaluate_trainee(
             condition=session["condition"],
             rubric_path=body.rubric_path or None,
             judge_config=judge_config,
+            profile=profile,
         )
         # Save evaluation result to DB
         save_evaluation(body.session_id, "trainee", result.scored)

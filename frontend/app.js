@@ -506,7 +506,7 @@ function renderTraineeResults(d) {
         html += '</ul>';
     }
 
-    // Rubric table
+    // Rubric table (without Score column)
     if (d.items && d.items.length > 0) {
         html += `
             <div class="section-title">📋 Rubric Checklist</div>
@@ -515,21 +515,45 @@ function renderTraineeResults(d) {
                     <tr>
                         <th>Item ID</th>
                         <th>Description</th>
-                        <th>Achieved</th>
+                        <th>Status</th>
                         <th>Points</th>
+                        <th>Rationale</th>
                     </tr>
                 </thead>
                 <tbody>
         `;
-        d.items.forEach(item => {
-            const icon = !item.included ? '—' : item.achieved ? '✅' : '❌';
-            const desc = item.description ? item.description.slice(0, 80) + (item.description.length > 80 ? '…' : '') : item.id;
+        d.items.forEach((item, idx) => {
+            // Determine status based on 3-point score (not just achieved boolean)
+            let statusIcon, statusText;
+            if (!item.included) {
+                statusIcon = '—';
+                statusText = 'Gated';
+            } else if (item.item_score === 2) {
+                statusIcon = '✅';
+                statusText = 'Met';
+            } else if (item.item_score === 1) {
+                statusIcon = '⚠️';
+                statusText = 'Partial';
+            } else {
+                statusIcon = '❌';
+                statusText = 'Not Shown';
+            }
+
+            const desc = (item.desc || item.id || '').slice(0, 60) + ((item.desc || item.id || '').length > 60 ? '…' : '');
+            const rationale = (item.rationale || '').slice(0, 80) + ((item.rationale || '').length > 80 ? '…' : '');
+
+            // Make rationale clickable with ID for modal
+            const rationaleCell = item.rationale
+                ? `<span class="rationale-btn" onclick="showRationaleModal('${item.id}', '${(item.rationale || '').replace(/'/g, "\\'")}', '${(item.desc || '').replace(/'/g, "\\'")}')">${rationale}</span>`
+                : '—';
+
             html += `
                 <tr>
-                    <td>${item.id}</td>
+                    <td><strong>${item.id}</strong></td>
                     <td>${desc}</td>
-                    <td class="status-icon">${icon}</td>
+                    <td class="status-icon">${statusIcon} ${statusText}</td>
                     <td>${item.points_awarded ?? 0} / ${item.weight ?? 1}</td>
+                    <td>${rationaleCell}</td>
                 </tr>
             `;
         });
@@ -539,5 +563,31 @@ function renderTraineeResults(d) {
     return html;
 }
 
-// ── Results Panel ──────────────────────────
+// ── Rationale Modal ────────────────────────
+function showRationaleModal(itemId, rationale, description) {
+    // Create modal HTML
+    const modal = document.createElement('div');
+    modal.className = 'rationale-modal';
+    modal.innerHTML = `
+        <div class="rationale-modal-overlay" onclick="this.parentElement.remove()"></div>
+        <div class="rationale-modal-content">
+            <div class="rationale-modal-header">
+                <h3>${itemId}</h3>
+                <button class="rationale-modal-close" onclick="this.closest('.rationale-modal').remove()">✕</button>
+            </div>
+            <div class="rationale-modal-body">
+                <div class="rationale-field">
+                    <strong>Description:</strong>
+                    <p>${description}</p>
+                </div>
+                <div class="rationale-field">
+                    <strong>Full Rationale:</strong>
+                    <p>${rationale}</p>
+                </div>
+            </div>
+        </div>
+    `;
+
+    document.body.appendChild(modal);
+}
 closeResults.addEventListener('click', hideResults);
