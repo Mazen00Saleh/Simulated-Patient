@@ -1,216 +1,229 @@
 """api.database
 
-Built-in SQLite database handler.
-Using standard library sqlite3 to save disk space.
+MongoDB database handler.
+Uses pymongo for all persistence. Connection URI is read from the
+MONGODB_URI environment variable (falls back to localhost).
+
+Collections:
+    sessions     — one doc per simulation session
+    messages     — conversation history
+    evaluations  — patient / trainee evaluation results
 """
 
-import sqlite3
-import os
 import json
-from pathlib import Path
-from datetime import datetime, timedelta
+import os
+from datetime import datetime, timedelta, timezone
 
-DB_PATH = Path(__file__).resolve().parents[1] / "simulated_patient.db"
+from pymongo import MongoClient, ASCENDING
+from pymongo.collection import Collection
 
-def get_db_connection():
-    conn = sqlite3.connect(DB_PATH)
-    conn.row_factory = sqlite3.Row
-    return conn
+# ---------------------------------------------------------------------------
+# Connection
+# ---------------------------------------------------------------------------
+
+_MONGODB_URI = os.getenv("MONGODB_URI", "mongodb://localhost:27017")
+_DB_NAME = "simulated_patient"
+
+_client: MongoClient | None = None
+
+
+def _get_client() -> MongoClient:
+    global _client
+    if _client is None:
+        _client = MongoClient(_MONGODB_URI)
+    return _client
+
+
+def _db():
+    return _get_client()[_DB_NAME]
+
+
+def _sessions() -> Collection:
+    return _db()["sessions"]
+
+
+def _messages() -> Collection:
+    return _db()["messages"]
+
+
+def _evaluations() -> Collection:
+    return _db()["evaluations"]
+
+
+# ---------------------------------------------------------------------------
+# Init (creates indexes)
+# ---------------------------------------------------------------------------
 
 def init_db():
-    """Initialize the database tables if they don't exist."""
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    
-    # Tables for Sessions
-    # add an expires_at column so we can impose a 10‑minute timer per session
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS sessions (
-            session_id TEXT PRIMARY KEY,
-            condition TEXT NOT NULL,
-            language TEXT NOT NULL,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            expires_at TIMESTAMP
-        )
-    ''')
-    # if the table already existed before adding expires_at, add the column now
-    cursor.execute("PRAGMA table_info(sessions)")
-    cols = [row['name'] for row in cursor.fetchall()]
-    if 'expires_at' not in cols:
-        cursor.execute("ALTER TABLE sessions ADD COLUMN expires_at TIMESTAMP")
-    if 'profile' not in cols:
-        cursor.execute("ALTER TABLE sessions ADD COLUMN profile TEXT")
-    
-    # Table for Messages (The Memory)
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS messages (
-            message_id INTEGER PRIMARY KEY AUTOINCREMENT,
-            session_id TEXT NOT NULL,
-            role TEXT NOT NULL,
-            content TEXT NOT NULL,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY (session_id) REFERENCES sessions (session_id)
-        )
-    ''')
-    
-    # Table for Evaluations
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS evaluations (
-            eval_id INTEGER PRIMARY KEY AUTOINCREMENT,
-            session_id TEXT NOT NULL,
-            eval_type TEXT NOT NULL, -- 'patient' or 'trainee'
-            score_data TEXT NOT NULL,  -- JSON blob of the result
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY (session_id) REFERENCES sessions (session_id)
-        )
-    ''')
-    
-    conn.commit()
-    conn.close()
+    """Create indexes so lookups by session_id are fast."""
+    _sessions().create_index([("session_id", ASCENDING)], unique=True, background=True)
+    _messages().create_index([("session_id", ASCENDING)], background=True)
+    _messages().create_index([("created_at", ASCENDING)], background=True)
+    _evaluations().create_index([("session_id", ASCENDING)], background=True)
+    _evaluations().create_index([("created_at", ASCENDING)], background=True)
 
-# CRUD Helpers
+
+# ---------------------------------------------------------------------------
+# Session CRUD
+# ---------------------------------------------------------------------------
+
 def save_session(session_id: str, condition: str, language: str, profile_json: str = None):
-    """Add a new session and record when it should expire (10 minutes from creation)."""
-    expires_at = datetime.utcnow() + timedelta(minutes=10)
-    conn = get_db_connection()
-    conn.execute(
-        "INSERT INTO sessions (session_id, condition, language, expires_at, profile) VALUES (?, ?, ?, ?, ?)",
-        (session_id, condition, language, expires_at.isoformat(), profile_json),
-    )
-    conn.commit()
-    conn.close()
+    """Insert a new session document with a 10-minute expiry."""
+    now = datetime.now(timezone.utc)
+    expires_at = now + timedelta(minutes=10)
+    doc = {
+        "session_id": session_id,
+        "condition": condition,
+        "language": language,
+        "created_at": now,
+        "expires_at": expires_at,
+        "profile": profile_json,  # raw JSON string or None
+    }
+    _sessions().insert_one(doc)
+
+
+def get_session_info(session_id: str) -> dict | None:
+    """Return the session document as a plain dict, or None."""
+    doc = _sessions().find_one({"session_id": session_id}, {"_id": 0})
+    return doc  # already a dict; expires_at is a datetime object
+
 
 def get_session_profile(session_id: str):
-    """
-    Return a PatientProfile dataclass for a session, or None if not available.
-    """
-    import json as _json
+    """Return a PatientProfile dataclass for a session, or None."""
     from src.patient_sim.interfaces import PatientProfile
-    conn = get_db_connection()
-    row = conn.execute(
-        "SELECT condition, language, profile FROM sessions WHERE session_id = ?",
-        (session_id,)
-    ).fetchone()
-    conn.close()
-    if not row or not row["profile"]:
+
+    doc = _sessions().find_one(
+        {"session_id": session_id},
+        {"condition": 1, "language": 1, "profile": 1, "_id": 0},
+    )
+    if not doc or not doc.get("profile"):
         return None
     try:
-        data = _json.loads(row["profile"])
-        # Remove condition/language if they were serialized into the blob
+        data = json.loads(doc["profile"])
         data.pop("condition", None)
         data.pop("language", None)
         return PatientProfile(
-            condition=row["condition"],
-            language=row["language"],
-            **data
+            condition=doc["condition"],
+            language=doc["language"],
+            **data,
         )
     except Exception:
         return None
 
-def add_message(session_id: str, role: str, content: str):
-    conn = get_db_connection()
-    conn.execute(
-        "INSERT INTO messages (session_id, role, content) VALUES (?, ?, ?)",
-        (session_id, role, content)
-    )
-    conn.commit()
-    conn.close()
-
-def get_session_history(session_id: str):
-    conn = get_db_connection()
-    rows = conn.execute(
-        "SELECT role, content FROM messages WHERE session_id = ? ORDER BY created_at ASC",
-        (session_id,)
-    ).fetchall()
-    conn.close()
-    return [{"role": row["role"], "content": row["content"]} for row in rows]
-
-def get_session_info(session_id: str):
-    conn = get_db_connection()
-    row = conn.execute(
-        "SELECT * FROM sessions WHERE session_id = ?",
-        (session_id,)
-    ).fetchone()
-    conn.close()
-    if not row:
-        return None
-    info = {k: row[k] for k in row.keys()}
-    # convert timestamp string back to datetime
-    if info.get("expires_at"):
-        try:
-            info["expires_at"] = datetime.fromisoformat(info["expires_at"])
-        except Exception:
-            # leave as string if parsing fails
-            pass
-    return info
-
-def save_evaluation(session_id: str, eval_type: str, score_data: dict):
-    conn = get_db_connection()
-    conn.execute(
-        "INSERT INTO evaluations (session_id, eval_type, score_data) VALUES (?, ?, ?)",
-        (session_id, eval_type, json.dumps(score_data))
-    )
-    conn.commit()
-    conn.close()
 
 def delete_session_data(session_id: str):
-    conn = get_db_connection()
-    conn.execute("DELETE FROM messages WHERE session_id = ?", (session_id,))
-    conn.execute("DELETE FROM evaluations WHERE session_id = ?", (session_id,))
-    conn.execute("DELETE FROM sessions WHERE session_id = ?", (session_id,))
-    conn.commit()
-    conn.close()
+    """Remove a session and all its related messages and evaluations."""
+    _messages().delete_many({"session_id": session_id})
+    _evaluations().delete_many({"session_id": session_id})
+    _sessions().delete_one({"session_id": session_id})
 
 
-# ----------------------------------------------------------
+# ---------------------------------------------------------------------------
+# Message CRUD
+# ---------------------------------------------------------------------------
+
+def add_message(session_id: str, role: str, content: str):
+    """Append a message to the conversation history."""
+    _messages().insert_one(
+        {
+            "session_id": session_id,
+            "role": role,
+            "content": content,
+            "created_at": datetime.now(timezone.utc),
+        }
+    )
+
+
+def get_session_history(session_id: str) -> list[dict]:
+    """Return all messages for a session, ordered by creation time."""
+    cursor = _messages().find(
+        {"session_id": session_id},
+        {"_id": 0, "role": 1, "content": 1},
+        sort=[("created_at", ASCENDING)],
+    )
+    return [{"role": m["role"], "content": m["content"]} for m in cursor]
+
+
+# ---------------------------------------------------------------------------
+# Evaluation CRUD
+# ---------------------------------------------------------------------------
+
+def save_evaluation(session_id: str, eval_type: str, score_data: dict):
+    """Persist an evaluation result."""
+    _evaluations().insert_one(
+        {
+            "session_id": session_id,
+            "eval_type": eval_type,
+            "score_data": score_data,  # store as a real dict, not JSON string
+            "created_at": datetime.now(timezone.utc),
+        }
+    )
+
+
+def get_latest_trainee_eval(session_id: str) -> dict | None:
+    """Return the most recent trainee evaluation score_data dict, or None."""
+    doc = _evaluations().find_one(
+        {"session_id": session_id, "eval_type": "trainee"},
+        {"_id": 0, "score_data": 1},
+        sort=[("created_at", -1)],
+    )
+    if not doc:
+        return None
+    return doc["score_data"]
+
+
+# ---------------------------------------------------------------------------
 # Timer helpers
-# ----------------------------------------------------------
+# ---------------------------------------------------------------------------
 
 def is_session_active(session_id: str) -> bool:
     """Return True if the session exists and has not expired yet."""
-    info = get_session_info(session_id)
-    if info is None:
+    doc = _sessions().find_one(
+        {"session_id": session_id},
+        {"expires_at": 1, "_id": 0},
+    )
+    if doc is None:
         return False
-    expires = info.get("expires_at")
+    expires = doc.get("expires_at")
     if not expires:
         return True
-    return datetime.utcnow() < expires
+    # ensure both sides are tz-aware
+    now = datetime.now(timezone.utc)
+    if expires.tzinfo is None:
+        expires = expires.replace(tzinfo=timezone.utc)
+    return now < expires
 
 
 def time_left_seconds(session_id: str) -> float:
-    """Return number of seconds remaining, or 0 if expired/missing."""
-    info = get_session_info(session_id)
-    if info is None or not info.get("expires_at"):
+    """Return number of seconds remaining for a session, or 0.0."""
+    doc = _sessions().find_one(
+        {"session_id": session_id},
+        {"expires_at": 1, "_id": 0},
+    )
+    if not doc or not doc.get("expires_at"):
         return 0.0
-    delta = info["expires_at"] - datetime.utcnow()
+    expires = doc["expires_at"]
+    now = datetime.now(timezone.utc)
+    if expires.tzinfo is None:
+        expires = expires.replace(tzinfo=timezone.utc)
+    delta = expires - now
     return max(0.0, delta.total_seconds())
 
 
-# ----------------------------------------------------------
-# Results helpers (stubbed for frontend use)
-# ----------------------------------------------------------
+def expire_session_now(session_id: str):
+    """Force a session to expire immediately."""
+    _sessions().update_one(
+        {"session_id": session_id},
+        {"$set": {"expires_at": datetime.now(timezone.utc)}},
+    )
 
-def get_latest_trainee_eval(session_id: str):
-    conn = get_db_connection()
-    row = conn.execute(
-        "SELECT score_data FROM evaluations WHERE session_id = ? AND eval_type = 'trainee' ORDER BY created_at DESC LIMIT 1",
-        (session_id,),
-    ).fetchone()
-    conn.close()
-    if not row:
-        return None
-    try:
-        return json.loads(row["score_data"])
-    except Exception:
-        return None
 
+# ---------------------------------------------------------------------------
+# Results helpers
+# ---------------------------------------------------------------------------
 
 def compute_session_results(session_id: str) -> dict:
-    """Generate strengths/weaknesses/improvement text from the latest trainee evaluation.
-
-    This is a minimal implementation that the frontend can call immediately.  It
-    returns a dictionary with keys `strengths`, `weaknesses`, and `improvement`.
-    """
+    """Generate strengths/weaknesses/improvement from the latest trainee eval."""
     eval_data = get_latest_trainee_eval(session_id)
     strengths: list[str] = []
     weaknesses: list[str] = []

@@ -10,7 +10,6 @@ Endpoints provided:
 
 from __future__ import annotations
 
-from datetime import datetime
 from typing import Annotated
 
 from fastapi import APIRouter, HTTPException, status
@@ -21,7 +20,7 @@ from api.database import (
     is_session_active,
     time_left_seconds,
     compute_session_results,
-    save_session,
+    expire_session_now,
 )
 
 router = APIRouter(prefix="/session", tags=["Session"])
@@ -77,14 +76,6 @@ def end_session_early(session_id: str) -> SessionTimeResponse:
     info = get_session_info(session_id)
     if info is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Session not found.")
-    # simply update expires_at to now
-    from api.database import get_db_connection
-
-    conn = get_db_connection()
-    conn.execute(
-        "UPDATE sessions SET expires_at = ? WHERE session_id = ?", (datetime.utcnow().isoformat(), session_id)
-    )
-    conn.commit()
-    conn.close()
+    expire_session_now(session_id)
     remaining = time_left_seconds(session_id)
     return SessionTimeResponse(session_id=session_id, remaining_seconds=remaining, expired=True)
