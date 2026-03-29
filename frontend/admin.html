@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SimPatient — Admin</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="/static/style.css">
+    <link rel="stylesheet" href="/static/admin.css">
+</head>
+
+<body>
+
+    <!-- ═══════════════════ TOP HEADER ═══════════════════ -->
+    <header class="top-bar">
+        <div class="top-bar-left">
+            <span class="logo-text">SimPatient <span class="logo-badge admin-badge">Admin</span></span>
+        </div>
+        <div class="top-bar-right">
+            <a href="/" class="nav-link">← Trainee View</a>
+            <span class="admin-indicator">
+                <span class="status-dot active"></span>
+                Admin Dashboard
+            </span>
+        </div>
+    </header>
+
+    <!-- ═══════════════════ MAIN LAYOUT ═══════════════════ -->
+    <div class="layout admin-layout">
+
+        <!-- ──── LEFT SIDEBAR ──── -->
+        <aside class="sidebar admin-sidebar">
+            <div class="sidebar-section">
+                <div class="section-heading">Dashboard</div>
+                <div class="admin-stats" id="admin-stats">
+                    <div class="stat-card">
+                        <div class="stat-value" id="stat-total">—</div>
+                        <div class="stat-label">Total Sessions</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="stat-evaluated">—</div>
+                        <div class="stat-label">Evaluated</div>
+                    </div>
+                </div>
+            </div>
+            <div class="sidebar-section">
+                <div class="section-heading">Filter</div>
+                <input class="field-input" id="search-input" type="text" placeholder="Search session ID or condition…">
+                <div class="filter-row">
+                    <label class="field-label" style="margin-top:10px;">Show</label>
+                    <select class="field-input" id="filter-eval" style="margin-top:5px;">
+                        <option value="all">All sessions</option>
+                        <option value="evaluated">Evaluated only</option>
+                        <option value="unevaluated">Unevaluated only</option>
+                    </select>
+                </div>
+                <button class="btn btn-primary" id="btn-refresh" style="margin-top:14px;">⟳ Refresh</button>
+            </div>
+        </aside>
+
+        <!-- ──── MAIN PANEL ──── -->
+        <main class="main-panel admin-main">
+
+            <!-- Tab Nav -->
+            <nav class="tab-nav">
+                <button class="tab-btn active" data-tab="history">📋 Session History</button>
+            </nav>
+
+            <!-- ── HISTORY TAB ── -->
+            <div class="tab-pane active" id="tab-history">
+
+                <!-- Sessions list (left column) -->
+                <div class="admin-split">
+                    <div class="sessions-list-panel">
+                        <div class="sessions-list-header">
+                            <span class="section-heading" style="margin:0;">Sessions</span>
+                            <span class="session-count" id="session-count">0 sessions</span>
+                        </div>
+                        <div class="sessions-list" id="sessions-list">
+                            <div class="admin-empty-state">
+                                <div class="empty-icon">🔄</div>
+                                <p>Loading sessions…</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Session detail (right column) -->
+                    <div class="session-detail-panel" id="session-detail">
+                        <div class="admin-empty-state detail-empty">
+                            <div class="empty-icon">📂</div>
+                            <h3>Select a session</h3>
+                            <p>Choose a session from the list to view the full conversation and evaluation results.</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <script src="/static/admin.js"></script>
+</body>
+
+</html>
