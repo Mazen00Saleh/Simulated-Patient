@@ -9,7 +9,7 @@ const Hero = () => {
           <p className="hero-subtitle">Improve your training with realistic patient conversations. Safe and easy-to-use practice for future mental health professionals.</p>
           <div className="hero-actions">
             <a href="#cta" className="btn btn-primary btn-lg">Start Practicing Now</a>
-            <a href="#how-it-works" className="btn btn-secondary btn-lg">See How It Works &rarr;</a>
+            <a href="#how-it-works" className="btn btn-secondary btn-lg">See How It Works ➜</a>
           </div>
         </div>
         <div className="hero-visual animate-on-scroll slide-in-right">
