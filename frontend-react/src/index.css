@@ -415,8 +415,8 @@ p {
 
 .hero-container {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 4rem;
+    grid-template-columns: 0.8fr 1.2fr;
+    gap: 3rem;
     align-items: center;
 }
 
@@ -466,7 +466,8 @@ p {
     transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.6s ease;
 }
 
-.glass-panel:hover {
+.glass-panel:hover,
+.glass-panel.hover-fixed {
     transform: perspective(1200px) rotateY(0deg) rotateX(0deg) translateY(-10px);
     box-shadow: 0 40px 80px rgba(26, 86, 219, 0.25), inset 0 0 0 1px rgba(255, 255, 255, 0.9);
 }
@@ -638,6 +639,14 @@ p {
     position: relative;
 }
 
+@media (min-width: 769px) {
+    .timeline {
+        flex-direction: row;
+        gap: 2rem;
+        max-width: 100%;
+    }
+}
+
 .timeline::before {
     content: '';
     position: absolute;
@@ -648,6 +657,17 @@ p {
     background: var(--primary-light);
 }
 
+@media (min-width: 769px) {
+    .timeline::before {
+        top: 24px;
+        bottom: auto;
+        left: 0;
+        right: 0;
+        width: 100%;
+        height: 2px;
+    }
+}
+
 .timeline-item {
     display: flex;
     gap: 2rem;
@@ -656,8 +676,24 @@ p {
     transition: transform 0.3s ease;
 }
 
+@media (min-width: 769px) {
+    .timeline-item {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        padding-bottom: 0;
+        flex: 1;
+    }
+}
+
 .timeline-item:hover {
     transform: translateX(10px);
+}
+
+@media (min-width: 769px) {
+    .timeline-item:hover {
+        transform: translateY(-10px);
+    }
 }
 
 .timeline-item:last-child {
@@ -1252,4 +1288,100 @@ p {
 
 .page-transition {
     animation: pageFadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Authentication Pages */
+.auth-page {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, var(--bg-light), var(--primary-light));
+    padding: 2rem;
+}
+
+.auth-card {
+    width: 100%;
+    max-width: 440px;
+    padding: 3rem 2.5rem;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    z-index: 10;
+    transform: none !important;
+}
+
+.auth-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.auth-header h1 {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+}
+
+.auth-header p {
+    color: var(--text-muted);
+    font-size: 1rem;
+    margin: 0;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-bottom: 1.25rem;
+}
+
+.form-label {
+    font-weight: 600;
+    font-size: 0.875rem;
+    color: var(--text-main);
+}
+
+.form-input {
+    width: 100%;
+    padding: 0.875rem 1rem;
+    border-radius: var(--radius-md);
+    border: 1px solid rgba(26, 86, 219, 0.2);
+    background: rgba(255, 255, 255, 0.8);
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    font-family: var(--font-body);
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(26, 86, 219, 0.15);
+    background: white;
+}
+
+.auth-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.auth-actions .btn {
+    width: 100%;
+}
+
+.auth-footer {
+    text-align: center;
+    font-size: 0.875rem;
+    color: var(--text-muted);
+    margin-top: 1.5rem;
+}
+
+.auth-footer a {
+    color: var(--primary);
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.auth-footer a:hover {
+    text-decoration: underline;
 }

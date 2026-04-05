@@ -1,6 +1,9 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import CaseCard from '../components/CaseCard';
+import CaseCard from '../components/CasesPage/CaseCard';
+import AppNavbar from '../components/AppNavbar';
+import AppFooter from '../components/AppFooter';
+
 
 import parsedCases from '../data/cases.json';
 
@@ -50,24 +53,61 @@ const CasesPage = () => {
   }, []);
 
   return (
-    <div className="bg-light page-transition" style={{ minHeight: '100vh', paddingBottom: '4rem' }}>
+    <div className="bg-light page-transition" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
 
       {/* Top Dashboard Header */}
-      <nav className="navbar" style={{ position: 'sticky', top: 0, zIndex: 100 }}>
-        <div className="container nav-container">
-          <div className="logo d-flex align-center" style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-            <Link to="/" className="btn btn-sm btn-outline" style={{ color: 'var(--text-main)', borderColor: 'var(--text-muted)' }}>
-              ⮌
-            </Link>
-            <div className="logo-text ">PsychSim <span className="text-secondary">Trainee Dashboard</span></div>
-          </div>
-          <div className="nav-links">
+      <AppNavbar />
 
+      {/* Full-width Login Promo Banner */}
+      <div
+        className="promo-banner-container"
+        style={{
+          width: '100%',
+          background: 'linear-gradient(135deg, rgba(26, 86, 219, 0.08), rgba(126, 58, 242, 0.08))',
+          borderBottom: '1px solid rgba(26, 86, 219, 0.1)',
+          backdropFilter: 'blur(10px)',
+          transition: 'all 0.3s ease',
+          position: 'relative'
+        }}
+        onMouseEnter={(e) => e.currentTarget.style.background = 'linear-gradient(135deg, rgba(26, 86, 219, 0.12), rgba(126, 58, 242, 0.12))'}
+        onMouseLeave={(e) => e.currentTarget.style.background = 'linear-gradient(135deg, rgba(26, 86, 219, 0.08), rgba(126, 58, 242, 0.08))'}
+      >
+
+        <div className="container animate-on-scroll is-visible slide-up" style={{
+          padding: '2rem 1.5rem',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          flexWrap: 'wrap',
+          gap: '1.5rem'
+        }}>
+          <div style={{ flex: '1 1 400px' }}>
+            <h3 style={{ margin: '0 0 0.5rem 0', fontSize: '1.35rem', color: 'var(--text-main)', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+              <span style={{ fontSize: '1.5rem', animation: 'bounce 2s infinite ease-in-out' }}>📊</span> Track Your Clinical Progress
+            </h3>
+            <p style={{ margin: 0, color: 'var(--text-muted)', fontSize: '1.05rem', lineHeight: '1.5', paddingRight: '2rem' }}>
+              Create an account or log in to automatically save your finished cases, view transcripts, and receive AI-driven performance feedback on your interviews.
+            </p>
+          </div>
+          <div style={{ marginRight: '2rem' }}>
+            <Link
+              to="/login"
+              className="btn btn-primary btn-lg"
+              style={{
+                boxShadow: '0 10px 25px -5px rgba(26, 86, 219, 0.3)',
+                transition: 'transform 0.2s, box-shadow 0.2s'
+              }}
+              onMouseOver={(e) => e.currentTarget.style.transform = 'translateY(-2px)'}
+              onMouseOut={(e) => e.currentTarget.style.transform = 'translateY(0)'}
+            >
+              Log In / Register
+            </Link>
           </div>
         </div>
-      </nav>
+      </div>
 
-      <div className="container" style={{ paddingTop: '4rem' }}>
+
+      <div className="container" style={{ paddingTop: '3rem', flexGrow: 1 }}>
 
         {/* Page Titles */}
         <div className="section-header center animate-on-scroll is-visible slide-up">
@@ -129,7 +169,22 @@ const CasesPage = () => {
 
         {/* Pagination Controls */}
         {totalPages > 1 && (
-          <div style={{ display: 'flex', justifyContent: 'center', gap: '0.5rem', marginTop: '4rem' }}>
+          <div style={{
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            gap: '0.5rem',
+            marginTop: '4rem',
+            marginBottom: '6rem',
+            padding: '0.75rem 1.5rem',
+            background: 'rgba(255, 255, 255, 0.9)',
+            backdropFilter: 'blur(10px)',
+            borderRadius: '999px',
+            boxShadow: '0 10px 25px -5px rgba(26, 86, 219, 0.1)',
+            maxWidth: 'fit-content',
+            marginLeft: 'auto',
+            marginRight: 'auto'
+          }}>
             <button
               className="btn btn-sm btn-outline"
               onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
@@ -172,6 +227,8 @@ const CasesPage = () => {
         )}
 
       </div>
+
+      <AppFooter />
     </div>
   );
 };
