@@ -3,12 +3,14 @@ import { Link } from 'react-router-dom';
 import CaseCard from '../components/CasesPage/CaseCard';
 import AppNavbar from '../components/AppNavbar';
 import AppFooter from '../components/AppFooter';
+import { useAuth } from '../context/AuthContext';
 
 
 import parsedCases from '../data/cases.json';
 
 
 const CasesPage = () => {
+  const { isAuthenticated } = useAuth();
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 6;
@@ -53,61 +55,34 @@ const CasesPage = () => {
   }, []);
 
   return (
-    <div className="bg-light page-transition" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+    <div className="bg-light page-transition page-wrapper">
 
       {/* Top Dashboard Header */}
       <AppNavbar />
 
-      {/* Full-width Login Promo Banner */}
-      <div
-        className="promo-banner-container"
-        style={{
-          width: '100%',
-          background: 'linear-gradient(135deg, rgba(26, 86, 219, 0.08), rgba(126, 58, 242, 0.08))',
-          borderBottom: '1px solid rgba(26, 86, 219, 0.1)',
-          backdropFilter: 'blur(10px)',
-          transition: 'all 0.3s ease',
-          position: 'relative'
-        }}
-        onMouseEnter={(e) => e.currentTarget.style.background = 'linear-gradient(135deg, rgba(26, 86, 219, 0.12), rgba(126, 58, 242, 0.12))'}
-        onMouseLeave={(e) => e.currentTarget.style.background = 'linear-gradient(135deg, rgba(26, 86, 219, 0.08), rgba(126, 58, 242, 0.08))'}
-      >
-
-        <div className="container animate-on-scroll is-visible slide-up" style={{
-          padding: '2rem 1.5rem',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          flexWrap: 'wrap',
-          gap: '1.5rem'
-        }}>
-          <div style={{ flex: '1 1 400px' }}>
-            <h3 style={{ margin: '0 0 0.5rem 0', fontSize: '1.35rem', color: 'var(--text-main)', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-              <span style={{ fontSize: '1.5rem', animation: 'bounce 2s infinite ease-in-out' }}>📊</span> Track Your Clinical Progress
-            </h3>
-            <p style={{ margin: 0, color: 'var(--text-muted)', fontSize: '1.05rem', lineHeight: '1.5', paddingRight: '2rem' }}>
-              Create an account or log in to automatically save your finished cases, view transcripts, and receive AI-driven performance feedback on your interviews.
-            </p>
-          </div>
-          <div style={{ marginRight: '2rem' }}>
-            <Link
-              to="/login"
-              className="btn btn-primary btn-lg"
-              style={{
-                boxShadow: '0 10px 25px -5px rgba(26, 86, 219, 0.3)',
-                transition: 'transform 0.2s, box-shadow 0.2s'
-              }}
-              onMouseOver={(e) => e.currentTarget.style.transform = 'translateY(-2px)'}
-              onMouseOut={(e) => e.currentTarget.style.transform = 'translateY(0)'}
-            >
-              Log In / Register
-            </Link>
+      {/* Sleek Full-width Promo Banner */}
+      {!isAuthenticated && (
+        <div className="promo-banner-container" style={{ borderBottom: '1px solid rgba(26, 86, 219, 0.15)' }}>
+          <div className="container promo-banner-content animate-on-scroll is-visible slide-up" style={{ padding: '2.5rem 1.5rem' }}>
+            <div className="promo-banner-text-wrapper">
+              <h3 className="promo-banner-title gradient-text" style={{ fontSize: '1.4rem', fontWeight: 700, color: 'var(--text-main)' }}>
+                Track Your Progress
+              </h3>
+              <p className="promo-banner-subtitle" style={{ fontSize: '1.05rem', color: 'var(--text-muted)' }}>
+                Create a free account to automatically save your simulated cases sessions with the AI-driven performance feedback
+              </p>
+            </div>
+            <div className="promo-banner-actions">
+              <Link to="/login" className="btn btn-primary" style={{ padding: '0.85rem 2rem', borderRadius: '999px', fontWeight: 600 }}>
+                Log In / Register
+              </Link>
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
 
-      <div className="container" style={{ paddingTop: '3rem', flexGrow: 1 }}>
+      <div className="container cases-content-container" style={{ paddingTop: '4rem' }}>
 
         {/* Page Titles */}
         <div className="section-header center animate-on-scroll is-visible slide-up">
@@ -116,37 +91,15 @@ const CasesPage = () => {
         </div>
 
         {/* Search Bar */}
-        <div className="animate-on-scroll is-visible slide-up" style={{ marginBottom: '3rem', display: 'flex', justifyContent: 'center' }}>
-          <div style={{ position: 'relative', width: '100%', maxWidth: '600px' }}>
-            <span style={{ position: 'absolute', left: '1.25rem', top: '50%', transform: 'translateY(-50%)', zIndex: 10, filter: 'grayscale(100%) opacity(50%)' }}>🔍</span>
+        <div className="animate-on-scroll is-visible slide-up search-wrapper">
+          <div className="search-input-container">
+            <span className="search-icon">🔍</span>
             <input
               type="text"
+              className="search-input-field"
               placeholder="Search cases by title or keywords..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              style={{
-                width: '100%',
-                padding: '1.25rem 1.5rem 1.25rem 3.5rem',
-                borderRadius: '999px',
-                border: '1px solid rgba(26, 86, 219, 0.2)',
-                boxShadow: '0 10px 25px -5px rgba(26, 86, 219, 0.1), 0 8px 10px -6px rgba(26, 86, 219, 0.1)',
-                outline: 'none',
-                fontFamily: 'var(--font-body)',
-                fontSize: '1.05rem',
-                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                background: 'rgba(255, 255, 255, 0.9)',
-                backdropFilter: 'blur(12px)'
-              }}
-              onFocus={(e) => {
-                e.target.style.boxShadow = '0 20px 25px -5px rgba(26, 86, 219, 0.2), 0 8px 10px -6px rgba(26, 86, 219, 0.1)';
-                e.target.style.borderColor = 'var(--primary)';
-                e.target.style.transform = 'translateY(-2px)';
-              }}
-              onBlur={(e) => {
-                e.target.style.boxShadow = '0 10px 25px -5px rgba(26, 86, 219, 0.1), 0 8px 10px -6px rgba(26, 86, 219, 0.1)';
-                e.target.style.borderColor = 'rgba(26, 86, 219, 0.2)';
-                e.target.style.transform = 'translateY(0)';
-              }}
             />
           </div>
         </div>
@@ -161,7 +114,7 @@ const CasesPage = () => {
             ))}
           </div>
         ) : (
-          <div style={{ textAlign: 'center', padding: '4rem 0', color: 'var(--text-muted)' }}>
+          <div className="empty-state">
             <h4>No cases match your search.</h4>
             <p>Try adjusting your keywords.</p>
           </div>
@@ -169,31 +122,11 @@ const CasesPage = () => {
 
         {/* Pagination Controls */}
         {totalPages > 1 && (
-          <div style={{
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            gap: '0.5rem',
-            marginTop: '4rem',
-            marginBottom: '6rem',
-            padding: '0.75rem 1.5rem',
-            background: 'rgba(255, 255, 255, 0.9)',
-            backdropFilter: 'blur(10px)',
-            borderRadius: '999px',
-            boxShadow: '0 10px 25px -5px rgba(26, 86, 219, 0.1)',
-            maxWidth: 'fit-content',
-            marginLeft: 'auto',
-            marginRight: 'auto'
-          }}>
+          <div className="pagination-wrapper">
             <button
-              className="btn btn-sm btn-outline"
+              className={`btn btn-sm btn-outline ${currentPage === 1 ? 'pagination-btn-disabled' : 'pagination-btn-active'}`}
               onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
               disabled={currentPage === 1}
-              style={{
-                color: currentPage === 1 ? 'var(--text-muted)' : 'var(--dark)',
-                opacity: currentPage === 1 ? 0.5 : 1,
-                cursor: currentPage === 1 ? 'not-allowed' : 'pointer'
-              }}
             >
               Previous
             </button>
@@ -203,23 +136,15 @@ const CasesPage = () => {
                 key={i}
                 className={`btn btn-sm ${currentPage === i + 1 ? 'btn-primary' : 'btn-outline'}`}
                 onClick={() => handlePageChange(i + 1)}
-                style={{
-                  color: currentPage === i + 1 ? 'white' : 'var(--dark)'
-                }}
               >
                 {i + 1}
               </button>
             ))}
 
             <button
-              className="btn btn-sm btn-outline"
+              className={`btn btn-sm btn-outline ${currentPage === totalPages ? 'pagination-btn-disabled' : 'pagination-btn-active'}`}
               onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1))}
               disabled={currentPage === totalPages}
-              style={{
-                color: currentPage === totalPages ? 'var(--text-muted)' : 'var(--dark)',
-                opacity: currentPage === totalPages ? 0.5 : 1,
-                cursor: currentPage === totalPages ? 'not-allowed' : 'pointer'
-              }}
             >
               Next
             </button>

@@ -18,13 +18,15 @@ from fastapi.responses import FileResponse
 
 from src.utils.env import load_env
 from api.database import init_db
-
+from api.postgres import engine, Base
+import api.db_models  # Import to register models
 
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     """Load environment variables and initialize DB once at startup."""
     load_env()
     init_db()
+    Base.metadata.create_all(bind=engine)
     yield
 
 
@@ -61,6 +63,7 @@ from api.routes.patient_eval import router as patient_eval_router
 from api.routes.trainee_eval import router as trainee_eval_router
 from api.routes.session import router as session_router
 from api.routes.admin import router as admin_router
+from api.routes.auth import router as auth_router
 
 API_V1_PREFIX = "/api/v1"
 
@@ -69,6 +72,7 @@ app.include_router(patient_eval_router, prefix=API_V1_PREFIX)
 app.include_router(trainee_eval_router, prefix=API_V1_PREFIX)
 app.include_router(session_router, prefix=API_V1_PREFIX)
 app.include_router(admin_router, prefix=API_V1_PREFIX)
+app.include_router(auth_router, prefix=API_V1_PREFIX)
 
 @app.get("/admin")
 async def admin_page():

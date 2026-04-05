@@ -7,7 +7,7 @@ const Footer = () => {
           <p>Empowering the next generation of mental health professionals through advanced AI simulation.</p>
         </div>
         <div className="footer-links">
-          <h4>Platform</h4>
+          <h4>About Us</h4>
           <a href="#features">Features</a>
           <a href="#how-it-works">How It Works</a>
           <a href="#roadmap">Roadmap</a>

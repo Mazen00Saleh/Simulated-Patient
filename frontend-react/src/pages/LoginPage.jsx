@@ -2,22 +2,34 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import AppNavbar from '../components/AppNavbar';
 import AppFooter from '../components/AppFooter';
+import { useAuth } from '../context/AuthContext';
 
 const LoginPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const { login } = useAuth();
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    // Simulate authentication
-    navigate('/cases');
+    setError(null);
+    setLoading(true);
+
+    const result = await login(email, password);
+    if (result.success) {
+      navigate('/cases');
+    } else {
+      setError(result.error);
+    }
+    setLoading(false);
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+    <div className="page-wrapper">
       <AppNavbar />
-      <div className="auth-page page-transition" style={{ flex: 1 }}>
+      <div className="auth-page page-transition page-content">
       <div className="glass-panel auth-card">
         <div className="auth-header">
           <h1>Welcome Back</h1>
@@ -25,6 +37,7 @@ const LoginPage = () => {
         </div>
 
         <form onSubmit={handleLogin}>
+          {error && <div className="alert alert-error">{error}</div>}
           <div className="form-group">
             <label className="form-label" htmlFor="email">Email Address</label>
             <input
@@ -52,7 +65,9 @@ const LoginPage = () => {
           </div>
 
           <div className="auth-actions">
-            <button type="submit" className="btn btn-primary btn-lg">Log In</button>
+            <button type="submit" className="btn btn-primary btn-lg" disabled={loading}>
+              {loading ? 'Logging in...' : 'Log In'}
+            </button>
           </div>
         </form>
 

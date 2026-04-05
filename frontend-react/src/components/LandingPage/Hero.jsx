@@ -28,7 +28,7 @@ const Hero = () => {
             </div>
             <div className="video-container" style={{ position: 'relative', width: '100%', aspectRatio: '16/9' }}>
               <iframe style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', border: 'none' }}
-                src="https://www.youtube-nocookie.com/embed/3JbBbY4S11w?si=GnqTx_496DiZUfcY"
+                src="https://www.youtube.com/embed/iTHtXgnhqfM?controls=0"
                 title="Simulated Patient Demo"
                 frameborder="0"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"

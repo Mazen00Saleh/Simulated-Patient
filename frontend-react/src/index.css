@@ -2,6 +2,8 @@
    PsychSim Intake - CSS Design System & Styles
    ========================================= */
 
+@import './styles/components.css';
+
 :root {
     /* Brand Colors */
     --primary: #1A56DB;

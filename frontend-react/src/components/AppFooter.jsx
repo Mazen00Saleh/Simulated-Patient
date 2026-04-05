@@ -35,10 +35,10 @@ const AppFooter = () => {
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-            <h4 style={{ color: 'white', marginBottom: '0.5rem', fontSize: '1.1rem' }}>Company</h4>
-            <Link to="/" style={{ color: 'rgba(255, 255, 255, 0.7)', textDecoration: 'none', transition: 'color 0.2s' }}>About Us</Link>
-            <Link to="/" style={{ color: 'rgba(255, 255, 255, 0.7)', textDecoration: 'none', transition: 'color 0.2s' }}>Contact</Link>
-            <Link to="/" style={{ color: 'rgba(255, 255, 255, 0.7)', textDecoration: 'none', transition: 'color 0.2s' }}>Privacy</Link>
+            <h4 style={{ color: 'white', marginBottom: '0.5rem', fontSize: '1.1rem' }}>About Us</h4>
+            <Link to="/" style={{ color: 'rgba(255, 255, 255, 0.7)', textDecoration: 'none', transition: 'color 0.2s' }}>Features</Link>
+            <Link to="/" style={{ color: 'rgba(255, 255, 255, 0.7)', textDecoration: 'none', transition: 'color 0.2s' }}>How It Works</Link>
+            <Link to="/" style={{ color: 'rgba(255, 255, 255, 0.7)', textDecoration: 'none', transition: 'color 0.2s' }}>Roadmap</Link>
           </div>
         </div>
       </div>

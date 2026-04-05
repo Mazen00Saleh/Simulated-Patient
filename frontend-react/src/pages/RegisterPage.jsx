@@ -2,23 +2,35 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import AppNavbar from '../components/AppNavbar';
 import AppFooter from '../components/AppFooter';
+import { useAuth } from '../context/AuthContext';
 
 const RegisterPage = () => {
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const { register } = useAuth();
 
-  const handleRegister = (e) => {
+  const handleRegister = async (e) => {
     e.preventDefault();
-    // Simulate registration
-    navigate('/cases');
+    setError(null);
+    setLoading(true);
+
+    const result = await register(fullName, email, password);
+    if (result.success) {
+      navigate('/cases');
+    } else {
+      setError(result.error);
+    }
+    setLoading(false);
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+    <div className="page-wrapper">
       <AppNavbar />
-      <div className="auth-page page-transition" style={{ flex: 1 }}>
+      <div className="auth-page page-transition page-content">
       <div className="glass-panel auth-card">
         <div className="auth-header">
           <h1>Create an Account</h1>
@@ -26,6 +38,7 @@ const RegisterPage = () => {
         </div>
 
         <form onSubmit={handleRegister}>
+          {error && <div className="alert alert-error">{error}</div>}
           <div className="form-group">
             <label className="form-label" htmlFor="fullName">Full Name</label>
             <input
@@ -67,7 +80,9 @@ const RegisterPage = () => {
           </div>
 
           <div className="auth-actions">
-            <button type="submit" className="btn btn-primary btn-lg">Sign Up</button>
+            <button type="submit" className="btn btn-primary btn-lg" disabled={loading}>
+              {loading ? 'Signing Up...' : 'Sign Up'}
+            </button>
           </div>
         </form>
 
