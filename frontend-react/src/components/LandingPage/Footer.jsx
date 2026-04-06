@@ -4,7 +4,7 @@ const Footer = () => {
       <div className="container footer-content">
         <div className="footer-brand">
           <span className="logo-text">PsychSim <span className="text-primary">Intake</span></span>
-          <p>Empowering the next generation of mental health professionals through advanced AI simulation.</p>
+          <p style={{ lineHeight: '1.7' }}>Empowering the next generation of mental health professionals through advanced AI simulation.</p>
         </div>
         <div className="footer-links">
           <h4>About Us</h4>

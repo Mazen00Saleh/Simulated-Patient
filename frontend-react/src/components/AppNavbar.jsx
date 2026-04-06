@@ -1,4 +1,3 @@
-import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
@@ -14,7 +13,7 @@ const AppNavbar = () => {
     <nav className="navbar navbar-sticky">
       <div className="container nav-container">
         <div className="logo nav-logo-container">
-          <div className="logo-text">PsychSim <span className="text-secondary">App</span></div>
+          <div className="logo-text">PsychSim <span className="text-primary">App</span></div>
           <div className="nav-links nav-links-wrapper" style={{ marginTop: '6px' }}>
             <Link to="/">Home</Link>
             <Link to="/cases">Cases</Link>

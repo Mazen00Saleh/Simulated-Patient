@@ -69,7 +69,7 @@ const CasesPage = () => {
                 Track Your Progress
               </h3>
               <p className="promo-banner-subtitle" style={{ fontSize: '1.05rem', color: 'var(--text-muted)' }}>
-                Create a free account to automatically save your simulated cases sessions with the AI-driven performance feedback
+                Create an account to automatically save your simulated case sessions!
               </p>
             </div>
             <div className="promo-banner-actions">
