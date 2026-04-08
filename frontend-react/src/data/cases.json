@@ -1,0 +1,142 @@
+[
+  {
+    "id": 1,
+    "title": "Intake Session",
+    "subtitle": "Differential Basics",
+    "difficulty": "Beginner",
+    "skills": [
+      "Rapport Building",
+      "History Taking",
+      "Screening Tools"
+    ],
+    "dynamics": "Guarded • Open",
+    "objective": "Establish rapport and identify main problems",
+    "duration": "15 min"
+  },
+  {
+    "id": 2,
+    "title": "Panic Attacks",
+    "subtitle": "Agoraphobia Intervention",
+    "difficulty": "Intermediate",
+    "skills": [
+      "Trigger Identification",
+      "Psychoeducation",
+      "Exposure Planning"
+    ],
+    "dynamics": "Avoidant • Anxious",
+    "objective": "Develop a short structured intervention plan",
+    "duration": "20 min"
+  },
+  {
+    "id": 3,
+    "title": "Major Depression",
+    "subtitle": "Safety-Risk Screening",
+    "difficulty": "Intermediate",
+    "skills": [
+      "Severity Assessment",
+      "Risk Assessment",
+      "Referral Workflow"
+    ],
+    "dynamics": "Withdrawn • Hopeless",
+    "objective": "Assess severity and risk, and refer when necessary",
+    "duration": "25 min"
+  },
+  {
+    "id": 4,
+    "title": "Trauma-Related Symptoms",
+    "subtitle": "PTSD Features",
+    "difficulty": "Advanced",
+    "skills": [
+      "Pacing and Grounding",
+      "Stabilization Techniques",
+      "Boundary Setting"
+    ],
+    "dynamics": "Hypervigilant • Avoidant",
+    "objective": "Stabilize and avoid re-traumatization",
+    "duration": "30 min"
+  },
+  {
+    "id": 5,
+    "title": "Obsessive-Compulsive Symptoms",
+    "subtitle": "ERP Conceptualization",
+    "difficulty": "Intermediate",
+    "skills": [
+      "Intrusive Thought Normalization",
+      "Compulsion Assessment",
+      "Treatment Planning"
+    ],
+    "dynamics": "Rigid • Anxious",
+    "objective": "Develop a treatment plan using ERP concepts",
+    "duration": "20 min"
+  },
+  {
+    "id": 6,
+    "title": "Bipolar Spectrum",
+    "subtitle": "Hypomania/Mania Features",
+    "difficulty": "Advanced",
+    "skills": [
+      "Elevated Mood Recognition",
+      "Risk Screening",
+      "Escalation Procedures"
+    ],
+    "dynamics": "Euphoric • Irritable",
+    "objective": "Recognize elevated mood patterns and escalate care when necessary",
+    "duration": "25 min"
+  },
+  {
+    "id": 7,
+    "title": "First-Episode Psychosis",
+    "subtitle": "Unusual Perceptions",
+    "difficulty": "Advanced",
+    "skills": [
+      "Non-Confrontational Interviewing",
+      "Reality Testing",
+      "Medication Referral"
+    ],
+    "dynamics": "Disorganized • Detached",
+    "objective": "Assess reality testing and refer to psychiatric care",
+    "duration": "30 min"
+  },
+  {
+    "id": 8,
+    "title": "Substance Use Disorder",
+    "subtitle": "Early Stage Ambivalence",
+    "difficulty": "Intermediate",
+    "skills": [
+      "Motivational Interviewing",
+      "Readiness Assessment",
+      "Harm-Reduction Framing"
+    ],
+    "dynamics": "Ambivalent • Defensive",
+    "objective": "Develop a motivational interviewing plan",
+    "duration": "20 min"
+  },
+  {
+    "id": 9,
+    "title": "Child/Adolescent Case",
+    "subtitle": "ADHD vs Anxiety vs Learning Issues",
+    "difficulty": "Intermediate",
+    "skills": [
+      "Developmental History Taking",
+      "Behavior Planning",
+      "Referral Pathways"
+    ],
+    "dynamics": "Distractible • Anxious",
+    "objective": "Differentiate between ADHD, anxiety, and learning issues",
+    "duration": "25 min"
+  },
+  {
+    "id": 10,
+    "title": "Older Adult Case",
+    "subtitle": "Cognitive Decline + Caregiver Stress",
+    "difficulty": "Advanced",
+    "skills": [
+      "Cognition Screening",
+      "Depression vs Dementia Differentiation",
+      "Caregiver Support"
+    ],
+    "dynamics": "Confused • Concerned",
+    "objective": "Screen for cognition concerns and support caregivers",
+    "duration": "30 min"
+  }
+]
