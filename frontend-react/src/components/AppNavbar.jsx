@@ -1,5 +1,6 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import './AppNavbar.css';
 
 const AppNavbar = () => {
   const { isAuthenticated, user, logout } = useAuth();
@@ -9,30 +10,34 @@ const AppNavbar = () => {
     logout();
     navigate('/cases');
   };
+
   return (
-    <nav className="navbar navbar-sticky">
-      <div className="container nav-container">
-        <div className="logo nav-logo-container">
-          <div className="logo-text">PsychSim <span className="text-primary">App</span></div>
-          <div className="nav-links nav-links-wrapper" style={{ marginTop: '6px' }}>
-            <Link to="/">Home</Link>
-            <Link to="/cases">Cases</Link>
-          </div>
+    <nav className="app-navbar">
+      <div className="app-navbar-container">
+        <div className="app-navbar-logo">
+          <Link to="/" className="app-navbar-logo-text">
+            <span className="app-navbar-icon">🔬</span>
+            PsychSim
+          </Link>
         </div>
-        <div className="nav-links nav-auth-container">
+
+        <div className="app-navbar-links">
+          <Link to="/" className="app-navbar-link">Home</Link>
+          <Link to="/cases" className="app-navbar-link">Cases</Link>
+        </div>
+
+        <div className="app-navbar-auth">
           {isAuthenticated ? (
             <>
-              <span className="nav-greeting">Hi, {user?.name?.split(' ')[0]}</span>
+              <span className="app-navbar-greeting">Hi, {user?.name?.split(' ')[0]}</span>
               <button
                 onClick={handleLogout}
-                className="btn btn-sm btn-outline btn-logout"
+                className="app-navbar-logout"
               >
                 Log Out
               </button>
             </>
-          ) : (
-            <Link></Link>
-          )}
+          ) : null}
         </div>
       </div>
     </nav>

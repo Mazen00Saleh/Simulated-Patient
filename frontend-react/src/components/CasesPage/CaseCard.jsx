@@ -1,11 +1,19 @@
+import { useNavigate } from 'react-router-dom';
+
 const CaseCard = ({ data }) => {
   const { icon, title, subtitle, difficulty, skills, dynamics, objective, duration } = data;
+  const navigate = useNavigate();
 
   // Determine badge color class based on difficulty
   const badgeClass =
     difficulty.toLowerCase() === 'beginner' ? 'badge-success' :
       difficulty.toLowerCase() === 'advanced' ? 'badge-danger' :
         'badge-warning'; // default to yellow for intermediate or others
+
+  const handleStart = () => {
+    // Navigate to app page with condition and language as query parameters
+    navigate(`/app?condition=${encodeURIComponent(title)}&language=English`);
+  };
 
   return (
     <div className="feature-card case-card">
@@ -40,7 +48,7 @@ const CaseCard = ({ data }) => {
         <div className="case-duration">
           ⏱ {duration}
         </div>
-        <button className="btn btn-sm btn-primary" style={{ borderRadius: '50px' }}>
+        <button className="btn btn-sm btn-primary" style={{ borderRadius: '50px' }} onClick={handleStart}>
           Start
         </button>
       </div>

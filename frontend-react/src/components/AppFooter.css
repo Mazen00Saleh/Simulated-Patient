@@ -1,0 +1,105 @@
+/* App Footer - Dark Theme */
+
+.app-footer {
+    background: linear-gradient(180deg, #0f1117 0%, #0a0d15 100%);
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    color: #e5e7eb;
+    padding: 0.75rem 1.5rem;
+    font-size: 0.85rem;
+}
+
+.app-footer-content {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;
+    gap: 2.5rem;
+    max-width: 100%;
+    margin-bottom: 0.75rem;
+}
+
+.app-footer-section {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.app-footer-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.95rem;
+    font-weight: 700;
+    margin: 0;
+    color: #6c63ff;
+}
+
+.app-footer-icon {
+    font-size: 1.1rem;
+}
+
+.app-footer-description {
+    color: #9ca3af;
+    margin: 0;
+    font-size: 0.75rem;
+    line-height: 1.4;
+}
+
+.app-footer-heading {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #e5e7eb;
+    margin: 0;
+    padding-bottom: 0.3rem;
+    border-bottom: 1px solid rgba(108, 99, 255, 0.2);
+}
+
+.app-footer-links {
+    display: flex;
+    gap: 1.25rem;
+}
+
+.app-footer-links a {
+    color: #9ca3af;
+    text-decoration: none;
+    transition: color 0.2s;
+    font-size: 0.75rem;
+    white-space: nowrap;
+}
+
+.app-footer-links a:hover {
+    color: #6c63ff;
+}
+
+.app-footer-divider {
+    height: 1px;
+    background: rgba(255, 255, 255, 0.05);
+    margin: 0.5rem 0;
+}
+
+.app-footer-bottom {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #6b7280;
+    font-size: 0.75rem;
+}
+
+.app-footer-bottom p {
+    margin: 0;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .app-footer-content {
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
+    }
+
+    .app-footer-links {
+        gap: 0.75rem;
+    }
+
+    .app-footer {
+        padding: 0.6rem 1rem;
+    }
+}
+}

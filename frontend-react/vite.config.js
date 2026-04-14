@@ -7,6 +7,14 @@ export default defineConfig({
   server: {
     fs: {
       allow: ['..']
+    },
+    proxy: {
+      // Forward all /api requests to the backend server
+      '/api': {
+        target: 'http://localhost:8000',
+        changeOrigin: true,
+        // Don't rewrite the path, just forward it as-is
+      }
     }
   }
 })

@@ -1,0 +1,99 @@
+/* App Navbar - Dark Theme */
+
+.app-navbar {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    background: linear-gradient(180deg, #1a1d27 0%, #161923 100%);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    padding: 0.75rem 1.5rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.app-navbar-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    max-width: 100%;
+    gap: 2rem;
+}
+
+.app-navbar-logo {
+    flex-shrink: 0;
+}
+
+.app-navbar-logo-text {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #e5e7eb;
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 1.1rem;
+    transition: color 0.2s;
+}
+
+.app-navbar-logo-text:hover {
+    color: #6c63ff;
+}
+
+.app-navbar-icon {
+    font-size: 1.25rem;
+}
+
+.app-navbar-links {
+    display: flex;
+    gap: 1.5rem;
+    align-items: center;
+    flex: 1;
+}
+
+.app-navbar-link {
+    color: #9ca3af;
+    text-decoration: none;
+    font-size: 0.95rem;
+    font-weight: 500;
+    transition: color 0.2s;
+    padding: 0.5rem 0.75rem;
+    border-radius: 6px;
+}
+
+.app-navbar-link:hover {
+    color: #6c63ff;
+    background: rgba(108, 99, 255, 0.1);
+}
+
+.app-navbar-auth {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-shrink: 0;
+}
+
+.app-navbar-greeting {
+    font-size: 0.9rem;
+    color: #9ca3af;
+    font-weight: 500;
+}
+
+.app-navbar-logout {
+    padding: 0.5rem 1rem;
+    background: transparent;
+    border: 1px solid rgba(108, 99, 255, 0.3);
+    color: #6c63ff;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.app-navbar-logout:hover {
+    background: rgba(108, 99, 255, 0.1);
+    border-color: rgba(108, 99, 255, 0.6);
+}
+
+.app-navbar-logout:active {
+    transform: scale(0.97);
+}

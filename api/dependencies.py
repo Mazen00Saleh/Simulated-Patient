@@ -14,22 +14,43 @@ from src.patient_sim.groq_patient_sim import GroqPatientSimulator
 from src.trainee_judge.trainee_judge_groq import judge_trainee_with_groq
 from src.trainee_judge.trainee_judge_schema import load_rubric as load_examiner_rubric
 from src.trainee_judge.trainee_score import score_from_judge_output
+from src.utils.logger import get_logger
+
+logger = get_logger(__name__)
 
 
 @lru_cache(maxsize=1)
 def get_patient_simulator() -> GroqPatientSimulator:
-    return GroqPatientSimulator()
+    try:
+        simulator = GroqPatientSimulator()
+        logger.debug("GroqPatientSimulator initialized successfully")
+        return simulator
+    except Exception as e:
+        logger.error(f"Error initializing GroqPatientSimulator: {type(e).__name__}: {e}")
+        raise
 
 
 @lru_cache(maxsize=1)
 def get_patient_evaluator() -> DeepEvalPatientEvaluator:
-    return DeepEvalPatientEvaluator()
+    try:
+        evaluator = DeepEvalPatientEvaluator()
+        logger.debug("DeepEvalPatientEvaluator initialized successfully")
+        return evaluator
+    except Exception as e:
+        logger.error(f"Error initializing DeepEvalPatientEvaluator: {type(e).__name__}: {e}")
+        raise
 
 
 @lru_cache(maxsize=1)
 def get_trainee_pipeline() -> TraineeEvalPipeline:
-    return TraineeEvalPipeline(
-        rubric_loader=load_examiner_rubric,
-        judge_fn=judge_trainee_with_groq,
-        scorer_fn=score_from_judge_output,
-    )
+    try:
+        pipeline = TraineeEvalPipeline(
+            rubric_loader=load_examiner_rubric,
+            judge_fn=judge_trainee_with_groq,
+            scorer_fn=score_from_judge_output,
+        )
+        logger.debug("TraineeEvalPipeline initialized successfully")
+        return pipeline
+    except Exception as e:
+        logger.error(f"Error initializing TraineeEvalPipeline: {type(e).__name__}: {e}")
+        raise

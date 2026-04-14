@@ -89,3 +89,8 @@ async def admin_page():
 @app.get("/health", tags=["Meta"])
 def health() -> dict:
     return {"status": "ok"}
+
+@app.post("/api/v1/chat/test", tags=["Meta"])
+def test_endpoint():
+    """Simple test endpoint to verify backend is responding with JSON."""
+    return {"status": "ok", "message": "Backend is working"}

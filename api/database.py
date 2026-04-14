@@ -74,10 +74,13 @@ def init_db():
 # ---------------------------------------------------------------------------
 
 def save_session(session_id: str, condition: str, language: str, profile_json: str = None):
-    """Insert a new session document with a 10-minute expiry."""
-    logger.info(f"Saving session: session_id={session_id!r}, condition={condition!r}, language={language!r}")
+    """Insert a new session document with a known minute expiry."""
     now = datetime.now(timezone.utc)
-    expires_at = now + timedelta(minutes=10)
+    expires_at = now + timedelta(minutes=15)
+    duration_minutes = (expires_at - now).total_seconds() / 60
+    
+    logger.info(f"Session created: session_id={session_id!r}, condition={condition!r}, language={language!r}, duration={int(duration_minutes)} minutes, expires_at={expires_at.isoformat()}")
+    
     doc = {
         "session_id": session_id,
         "condition": condition,
@@ -87,16 +90,12 @@ def save_session(session_id: str, condition: str, language: str, profile_json: s
         "profile": profile_json,  # raw JSON string or None
     }
     _sessions().insert_one(doc)
-    logger.debug(f"Session saved, expires at {expires_at.isoformat()}")
 
 
 def get_session_info(session_id: str) -> dict | None:
     """Return the session document as a plain dict, or None."""
-    logger.debug(f"Fetching session info: {session_id!r}")
     doc = _sessions().find_one({"session_id": session_id}, {"_id": 0})
-    if doc:
-        logger.debug(f"Session found: expires_at check for {session_id!r}")
-    else:
+    if not doc:
         logger.warning(f"Session not found: {session_id!r}")
     return doc  # already a dict; expires_at is a datetime object
 
@@ -220,7 +219,8 @@ def time_left_seconds(session_id: str) -> float:
     if expires.tzinfo is None:
         expires = expires.replace(tzinfo=timezone.utc)
     delta = expires - now
-    return max(0.0, delta.total_seconds())
+    remaining = max(0.0, delta.total_seconds())
+    return remaining
 
 
 def expire_session_now(session_id: str):
