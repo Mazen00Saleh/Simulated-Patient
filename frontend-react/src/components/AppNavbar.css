@@ -97,3 +97,61 @@
 .app-navbar-logout:active {
     transform: scale(0.97);
 }
+
+/* ── Dropdown ── */
+.app-navbar-dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.dropdown-toggle {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    cursor: pointer;
+}
+
+.dropdown-menu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 220px;
+    background: #1a1d27;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    display: none;
+    flex-direction: column;
+    padding: 0.5rem;
+    z-index: 1001;
+}
+
+/* Bridge gap between link and menu */
+.dropdown-menu::before {
+    content: '';
+    position: absolute;
+    top: -15px;
+    left: 0;
+    right: 0;
+    height: 15px;
+    background: transparent;
+}
+
+.app-navbar-dropdown:hover .dropdown-menu {
+    display: flex;
+}
+
+.dropdown-item {
+    padding: 0.7rem 1rem;
+    color: #9ca3af;
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 500;
+    border-radius: 6px;
+    transition: all 0.2s;
+}
+
+.dropdown-item:hover {
+    color: #ffffff;
+    background: rgba(108, 99, 255, 0.15);
+}

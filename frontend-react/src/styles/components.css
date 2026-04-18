@@ -62,6 +62,7 @@
   transition: all 0.3s ease;
   position: relative;
 }
+
 .promo-banner-container:hover {
   background: linear-gradient(135deg, rgba(26, 86, 219, 0.12), rgba(126, 58, 242, 0.12));
 }
@@ -109,6 +110,7 @@
   box-shadow: 0 10px 25px -5px rgba(26, 86, 219, 0.3);
   transition: transform 0.2s, box-shadow 0.2s;
 }
+
 .btn-promo:hover {
   transform: translateY(-2px);
 }
@@ -152,6 +154,7 @@
   background: rgba(255, 255, 255, 0.9);
   backdrop-filter: blur(12px);
 }
+
 .search-input-field:focus {
   box-shadow: 0 20px 25px -5px rgba(26, 86, 219, 0.2), 0 8px 10px -6px rgba(26, 86, 219, 0.1);
   border-color: var(--primary);
@@ -175,10 +178,21 @@
   background: rgba(255, 255, 255, 0.9);
   backdrop-filter: blur(10px);
   border-radius: 999px;
+  border: 1px solid rgba(0, 0, 0, 0.05);
   box-shadow: 0 10px 25px -5px rgba(26, 86, 219, 0.1);
   max-width: fit-content;
   margin-left: auto;
   margin-right: auto;
+}
+
+.pagination-wrapper .btn-outline {
+  color: #000 !important;
+  border-color: rgba(0, 0, 0, 0.1);
+}
+
+.pagination-wrapper .btn-outline:hover {
+  background: rgba(0, 0, 0, 0.05);
+  border-color: rgba(0, 0, 0, 0.2);
 }
 
 .pagination-btn-disabled {
@@ -188,7 +202,7 @@
 }
 
 .pagination-btn-active {
-  color: var(--dark);
+  color: #000;
   cursor: pointer;
 }
 

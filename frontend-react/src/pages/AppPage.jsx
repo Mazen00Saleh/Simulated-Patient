@@ -12,6 +12,7 @@ const AppPage = () => {
     const [activeTab, setActiveTab] = useState('chat');
     const [condition, setCondition] = useState('Depression');
     const [language, setLanguage] = useState('English');
+    const [caseId, setCaseId] = useState(null);
     const [showLLMOverrides, setShowLLMOverrides] = useState(false);
     const navigate = useNavigate();
     const [searchParams] = useSearchParams();
@@ -31,17 +32,19 @@ const AppPage = () => {
         clearSession
     } = useSession();
 
-    // Check if condition/language were passed from cases page
+    // Check if condition/language/case_id were passed from cases page
     useEffect(() => {
         const caseCondition = searchParams.get('condition');
         const caseLanguage = searchParams.get('language');
+        const paramCaseId = searchParams.get('case_id');
 
         if (caseCondition) setCondition(caseCondition);
         if (caseLanguage) setLanguage(caseLanguage);
+        if (paramCaseId) setCaseId(paramCaseId);
     }, [searchParams]);
 
     const handleStartSession = async () => {
-        const result = await startSession(condition, language);
+        const result = await startSession(condition, language, caseId);
         if (!result.ok) {
             alert(`Error: ${result.error || 'Could not start session'}`);
         }
@@ -70,14 +73,20 @@ const AppPage = () => {
                         <div className="section-heading">Session Config</div>
 
                         <label className="field-label">Condition</label>
-                        <input
-                            className="field-input"
-                            type="text"
-                            placeholder="Depression, Anxiety…"
-                            value={condition}
-                            onChange={(e) => setCondition(e.target.value)}
-                            disabled={isActive}
-                        />
+                        {caseId ? (
+                            <div className="field-input" style={{ opacity: 0.7, cursor: 'not-allowed' }}>
+                                {condition}
+                            </div>
+                        ) : (
+                            <input
+                                className="field-input"
+                                type="text"
+                                placeholder="Depression, Anxiety…"
+                                value={condition}
+                                onChange={(e) => setCondition(e.target.value)}
+                                disabled={isActive}
+                            />
+                        )}
 
                         <label className="field-label">Language</label>
                         <select

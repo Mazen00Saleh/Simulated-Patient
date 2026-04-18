@@ -67,15 +67,16 @@ def build_chatbot_role(condition: str, language: str) -> str:
 # Profile-driven prompt builders (new)
 # ---------------------------------------------------------------------------
 
-def build_profile_generation_prompt(condition: str, language: str) -> str:
+def build_profile_generation_prompt(condition: str, language: str, case_details: Optional[str] = None) -> str:
     """
     System prompt for the one-shot LLM call that generates a PatientProfile JSON.
 
     Simplified prompt to maximize JSON generation success.
     """
+    context_block = f"\nCase Context: {case_details}\n" if case_details else ""
     return f"""You are creating a psychiatric patient profile for medical training.
 
-Condition: {condition}
+Condition: {condition}{context_block}
 Patient language: {language}
 
 Generate ONE realistic patient profile. Vary response_style and emotional_tone randomly each time.

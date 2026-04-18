@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
+import { useAuth } from './AuthContext';
 
 const SessionContext = createContext();
 
@@ -8,6 +9,7 @@ export const SessionProvider = ({ children }) => {
     const [sessionId, setSessionId] = useState(null);
     const [condition, setCondition] = useState('');
     const [language, setLanguage] = useState('English');
+    const [caseId, setCaseId] = useState(null);
     const [isActive, setIsActive] = useState(false);
     const [isPending, setIsPending] = useState(false);
     const [sessionExpired, setSessionExpired] = useState(false);
@@ -17,21 +19,28 @@ export const SessionProvider = ({ children }) => {
     const [modelOverride, setModelOverride] = useState('');
     const [reasoningOverride, setReasoningOverride] = useState('');
 
+    // Auth context for user_id
+    const { user } = useAuth();
+
     // Profile data
     const [patientProfile, setPatientProfile] = useState(null);
 
     // Chat messages
     const [messages, setMessages] = useState([]);
 
-    const startSession = useCallback(async (cond, lang) => {
+    const startSession = useCallback(async (cond, lang, passedCaseId) => {
         setIsPending(true);
         try {
-            console.log(`[SessionContext] Starting session request: condition="${cond}", language="${lang}"`);
+            const reqBody = { condition: cond, language: lang };
+            if (passedCaseId) reqBody.case_id = passedCaseId;
+            if (user?.id) reqBody.user_id = user.id;
+
+            console.log(`[SessionContext] Starting session request:`, reqBody);
 
             const response = await fetch(`${API}/chat/start`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ condition: cond, language: lang })
+                body: JSON.stringify(reqBody)
             });
 
             console.log(`[SessionContext] Response received: status=${response.status}, statusText="${response.statusText}"`);
@@ -70,6 +79,7 @@ export const SessionProvider = ({ children }) => {
                 setSessionId(data.session_id);
                 setCondition(cond);
                 setLanguage(lang);
+                setCaseId(passedCaseId || data.case_id || null);
                 setIsActive(true);
                 setSessionExpired(false);
                 setRemainingSeconds(600);
@@ -90,7 +100,7 @@ export const SessionProvider = ({ children }) => {
         } finally {
             setIsPending(false);
         }
-    }, []);
+    }, [user]);
 
     const loadProfile = useCallback(async (sid) => {
         try {
@@ -149,6 +159,7 @@ export const SessionProvider = ({ children }) => {
         setSessionId(null);
         setCondition('');
         setLanguage('English');
+        setCaseId(null);
         setIsActive(false);
         setSessionExpired(false);
         setRemainingSeconds(600);
@@ -211,6 +222,7 @@ export const SessionProvider = ({ children }) => {
         sessionId,
         condition,
         language,
+        caseId,
         isActive,
         isPending,
         sessionExpired,

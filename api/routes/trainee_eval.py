@@ -18,7 +18,7 @@ logger = get_logger(__name__)
 
 from api.dependencies import get_trainee_pipeline
 from api.models import RubricResponse, TraineeEvalRequest, TraineeEvalResponse
-from api.database import get_session_info, get_session_history, save_evaluation, get_session_profile
+from api.database import get_session_info, get_session_history, save_evaluation, get_session_profile, get_case_rubric
 from src.evaluation.trainee.pipeline import TraineeEvalPipeline
 from src.trainee_judge.trainee_judge_groq import GroqJudgeConfig
 
@@ -80,12 +80,21 @@ def evaluate_trainee(
     # Get patient profile for risk gate detection
     profile = get_session_profile(body.session_id)
 
+    # Resolve rubric: case-specific rubric > explicit rubric_path > default
+    case_rubric = None
+    case_id = session.get("case_id")
+    if case_id:
+        case_rubric = get_case_rubric(case_id)
+        if case_rubric:
+            logger.info(f"Using case-specific rubric for case_id={case_id!r}")
+
     try:
         logger.debug(f"Running trainee evaluation pipeline for {body.session_id!r}")
         result = pipeline.run(
             history,
             language=session["language"],
             condition=session["condition"],
+            rubric=case_rubric,  # None falls back to rubric_path/default
             rubric_path=body.rubric_path or None,
             judge_config=judge_config,
             profile=profile,

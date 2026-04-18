@@ -26,7 +26,7 @@ class GroqPatientSimulator:
         self._client = Groq(api_key=api_key or os.getenv("GROQ_API_KEY"))
 
     @log_call
-    def generate_profile(self, condition: str, language: str) -> PatientProfile:
+    def generate_profile(self, condition: str, language: str, case_details: Optional[str] = None) -> PatientProfile:
         """
         Makes a single LLM call to generate a random PatientProfile for a session.
         Uses a cheaper/faster model since this is a structured generation task.
@@ -38,7 +38,7 @@ class GroqPatientSimulator:
         from src.patient_sim.prompts import build_profile_generation_prompt
 
         logger.info(f"Attempting to generate patient profile: condition={condition!r}, language={language!r}")
-        system_prompt = build_profile_generation_prompt(condition, language)
+        system_prompt = build_profile_generation_prompt(condition, language, case_details=case_details)
         max_retries = 3
 
         for attempt in range(max_retries):

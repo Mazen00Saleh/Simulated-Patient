@@ -6,20 +6,37 @@ import AppFooter from '../components/AppFooter';
 import { useAuth } from '../context/AuthContext';
 
 
-import parsedCases from '../data/cases.json';
-
-
 const CasesPage = () => {
   const { isAuthenticated } = useAuth();
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
+  const [cases, setCases] = useState([]);
+  const [loading, setLoading] = useState(true);
   const itemsPerPage = 6;
+
+  // Fetch cases from API
+  useEffect(() => {
+    const fetchCases = async () => {
+      try {
+        const res = await fetch('/api/v1/cases');
+        if (res.ok) {
+          const data = await res.json();
+          setCases(data);
+        }
+      } catch (err) {
+        console.error('Failed to fetch cases:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchCases();
+  }, []);
 
   // Filter cases based on the search query
   const filteredCases = useMemo(() => {
-    if (!searchQuery.trim()) return parsedCases;
+    if (!searchQuery.trim()) return cases;
     const q = searchQuery.toLowerCase();
-    return parsedCases.filter(c => {
+    return cases.filter(c => {
       const allText = [
         c.title,
         c.subtitle,
@@ -31,7 +48,7 @@ const CasesPage = () => {
       ].join(' ').toLowerCase();
       return allText.includes(q);
     });
-  }, [searchQuery]);
+  }, [searchQuery, cases]);
 
   // Handle Pagination 
   const totalPages = Math.ceil(filteredCases.length / itemsPerPage);

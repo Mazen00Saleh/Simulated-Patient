@@ -17,12 +17,15 @@ from pydantic import BaseModel, Field, ConfigDict
 class StartSessionRequest(BaseModel):
     condition: str = Field(..., description="Patient condition, e.g. 'depression'")
     language: str = Field("English", description="Language for patient responses: 'English' or 'Arabic'")
+    case_id: Optional[str] = Field(None, description="ID of the case card to use")
+    user_id: Optional[str] = Field(None, description="ID of the user starting the session")
 
 
 class StartSessionResponse(BaseModel):
     session_id: str
     condition: str
     language: str
+    case_id: Optional[str] = None
     expires_at: Optional[str] = None  # ISO timestamp when session will expire
 
 
@@ -149,6 +152,7 @@ class UserResponse(BaseModel):
     id: str
     name: str
     email: str
+    is_admin: bool = False
 
 class Token(BaseModel):
     access_token: str

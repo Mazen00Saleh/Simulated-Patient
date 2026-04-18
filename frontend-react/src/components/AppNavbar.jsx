@@ -24,6 +24,19 @@ const AppNavbar = () => {
         <div className="app-navbar-links">
           <Link to="/" className="app-navbar-link">Home</Link>
           <Link to="/cases" className="app-navbar-link">Cases</Link>
+
+          {user?.is_admin && (
+            <div className="app-navbar-dropdown">
+              <span className="app-navbar-link dropdown-toggle">
+                Admin ▾
+              </span>
+              <div className="dropdown-menu">
+                <Link to="/admin" className="dropdown-item">⚙️ Settings & Sessions</Link>
+                <Link to="/admin/analytics" className="dropdown-item">📊 Analytics</Link>
+                <Link to="/admin/cases" className="dropdown-item">✏️ Case Editor</Link>
+              </div>
+            </div>
+          )}
         </div>
 
         <div className="app-navbar-auth">

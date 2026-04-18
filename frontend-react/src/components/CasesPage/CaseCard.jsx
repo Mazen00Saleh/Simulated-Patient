@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 
 const CaseCard = ({ data }) => {
-  const { icon, title, subtitle, difficulty, skills, dynamics, objective, duration } = data;
+  const { icon, title, subtitle, difficulty, skills, dynamics, objective, duration, case_id, condition } = data;
   const navigate = useNavigate();
 
   // Determine badge color class based on difficulty
@@ -11,8 +11,9 @@ const CaseCard = ({ data }) => {
         'badge-warning'; // default to yellow for intermediate or others
 
   const handleStart = () => {
-    // Navigate to app page with condition and language as query parameters
-    navigate(`/app?condition=${encodeURIComponent(title)}&language=English`);
+    // Navigate to app page with case_id and condition as query parameters
+    const cond = condition || title;
+    navigate(`/app?case_id=${encodeURIComponent(case_id || '')}&condition=${encodeURIComponent(cond)}&language=English`);
   };
 
   return (

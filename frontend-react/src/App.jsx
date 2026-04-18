@@ -7,6 +7,10 @@ import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import AppPage from './pages/AppPage';
 
+import AdminPage from './pages/AdminPage';
+import AnalyticsPage from './pages/AnalyticsPage';
+import CaseEditorPage from './pages/CaseEditorPage';
+
 function App() {
   return (
     <AuthProvider>
@@ -18,6 +22,9 @@ function App() {
             <Route path="/register" element={<RegisterPage />} />
             <Route path="/cases" element={<CasesPage />} />
             <Route path="/app" element={<AppPage />} />
+            <Route path="/admin" element={<AdminPage />} />
+            <Route path="/admin/analytics" element={<AnalyticsPage />} />
+            <Route path="/admin/cases" element={<CaseEditorPage />} />
           </Routes>
         </div>
       </SessionProvider>

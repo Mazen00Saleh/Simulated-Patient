@@ -36,6 +36,7 @@ from api.database import (
     is_session_active,
     time_left_seconds,
     get_session_profile,
+    get_case,
 )
 from src.patient_sim.groq_patient_sim import GroqPatientSimulator
 from src.patient_sim.interfaces import PatientSimConfig
@@ -90,11 +91,38 @@ def start_session(
         session_id = str(uuid.uuid4())
         language = body.language if body.language in ("English", "Arabic") else "English"
         
-        logger.debug(f"Generated session_id={session_id}")
+        # Resolve case if case_id is provided
+        case_id = getattr(body, 'case_id', None)
+        case_doc = None
+        duration_minutes = 15
+        case_context = None
+        condition = body.condition.strip()
+
+        if case_id:
+            case_doc = get_case(case_id)
+            if case_doc:
+                # Use case condition and duration if available
+                condition = case_doc.get("condition") or condition
+                dur_str = case_doc.get("duration", "15 min")
+                try:
+                    duration_minutes = int(''.join(filter(str.isdigit, dur_str)) or 15)
+                except ValueError:
+                    duration_minutes = 15
+                
+                # Build context for the patient generator
+                obj = case_doc.get("objective", "")
+                dyn = case_doc.get("dynamics", "")
+                if obj or dyn:
+                    case_context = f"Objective: {obj}. Dynamics: {dyn}."
+        
+        # Extract user_id from JWT token (optional)
+        user_id = getattr(body, 'user_id', None)
+        
+        logger.debug(f"Generated session_id={session_id}, case_id={case_id}, user_id={user_id}")
         
         # Generate a random patient profile for this session
         try:
-            profile = simulator.generate_profile(body.condition.strip(), language)
+            profile = simulator.generate_profile(condition, language, case_details=case_context)
             # Serialize profile to JSON for storage, excluding condition/language
             # (those are already stored as separate columns)
             import dataclasses
@@ -112,7 +140,7 @@ def start_session(
         
         # Save session and initial system prompt
         try:
-            save_session(session_id, body.condition.strip(), language, profile_json=profile_json)
+            save_session(session_id, body.condition.strip(), language, profile_json=profile_json, case_id=case_id, user_id=user_id, duration_minutes=duration_minutes)
             logger.debug(f"Session saved to database: {session_id}")
         except Exception as e:
             logger.error(f"Database error while saving session: {type(e).__name__}: {e}")
@@ -140,6 +168,7 @@ def start_session(
             session_id=session_id,
             condition=body.condition.strip(),
             language=language,
+            case_id=case_id,
             expires_at=exp,
         )
     except HTTPException:

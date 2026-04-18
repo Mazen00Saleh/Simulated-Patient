@@ -8,22 +8,9 @@ Admin endpoints:
 from __future__ import annotations
 
 from fastapi import APIRouter, HTTPException, status
-from api.database import _sessions, _messages, _evaluations
+from api.database import _sessions, _messages, _evaluations, get_analytics_data, _serialize
 
 router = APIRouter(prefix="/admin", tags=["Admin"])
-
-
-def _serialize(doc: dict) -> dict:
-    """Convert MongoDB doc to a JSON-safe dict (stringify datetimes, remove _id)."""
-    out = {}
-    for k, v in doc.items():
-        if k == "_id":
-            continue
-        if hasattr(v, "isoformat"):
-            out[k] = v.isoformat()
-        else:
-            out[k] = v
-    return out
 
 
 @router.get("/sessions")
@@ -76,3 +63,9 @@ def get_session_detail(session_id: str):
         "messages": [_serialize(m) for m in messages],
         "evaluations": [_serialize(e) for e in evaluations],
     }
+
+
+@router.get("/analytics")
+def analytics():
+    """Return aggregated analytics data for the admin dashboard."""
+    return get_analytics_data()

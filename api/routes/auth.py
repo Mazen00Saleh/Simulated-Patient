@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
-from passlib.context import CryptContext
+import bcrypt
 import jwt
 from datetime import datetime, timedelta, timezone
 import os
@@ -10,17 +10,15 @@ from api.db_models import User
 from api.models import UserCreate, UserLogin, UserResponse, Token
 
 router = APIRouter(prefix="/auth", tags=["Auth"])
-
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 SECRET_KEY = os.getenv("SECRET_KEY", "supersecretkey_dev")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24 * 7 # 7 days
 
 def get_password_hash(password):
-    return pwd_context.hash(password)
+    return bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
 
 def verify_password(plain_password, hashed_password):
-    return pwd_context.verify(plain_password, hashed_password)
+    return bcrypt.checkpw(plain_password.encode('utf-8'), hashed_password.encode('utf-8'))
 
 def create_access_token(data: dict):
     to_encode = data.copy()
@@ -45,11 +43,11 @@ def register_user(user: UserCreate, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(new_user)
     
-    access_token = create_access_token(data={"sub": new_user.email})
+    access_token = create_access_token(data={"sub": new_user.email, "is_admin": new_user.is_admin})
     return {
         "access_token": access_token, 
         "token_type": "bearer",
-        "user": {"id": new_user.id, "name": new_user.name, "email": new_user.email}
+        "user": {"id": new_user.id, "name": new_user.name, "email": new_user.email, "is_admin": new_user.is_admin}
     }
 
 @router.post("/login", response_model=Token)
@@ -61,9 +59,9 @@ def login_user(user: UserLogin, db: Session = Depends(get_db)):
             detail="Incorrect email or password"
         )
     
-    access_token = create_access_token(data={"sub": db_user.email})
+    access_token = create_access_token(data={"sub": db_user.email, "is_admin": db_user.is_admin})
     return {
         "access_token": access_token, 
         "token_type": "bearer",
-        "user": {"id": db_user.id, "name": db_user.name, "email": db_user.email}
+        "user": {"id": db_user.id, "name": db_user.name, "email": db_user.email, "is_admin": db_user.is_admin}
     }
