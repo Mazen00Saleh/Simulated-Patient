@@ -6,6 +6,7 @@ import CasesPage from './pages/CasesPage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import AppPage from './pages/AppPage';
+import EvalPage from './pages/EvalPage';
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
             <Route path="/register" element={<RegisterPage />} />
             <Route path="/cases" element={<CasesPage />} />
             <Route path="/app" element={<AppPage />} />
+            <Route path="/eval" element={<EvalPage />} />
           </Routes>
         </div>
       </SessionProvider>

@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 
 const CaseCard = ({ data }) => {
-  const { icon, title, subtitle, difficulty, skills, dynamics, objective, duration } = data;
+  const { title, subtitle, difficulty, skills, dynamics, objective, duration } = data;
   const navigate = useNavigate();
 
   // Determine badge color class based on difficulty
@@ -16,8 +16,20 @@ const CaseCard = ({ data }) => {
   };
 
   return (
-    <div className="feature-card case-card">
-      <div className={`badge ${badgeClass}`} style={{ marginBottom: '1rem', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+    <div className="feature-card case-card" onClick={handleStart} style={{ cursor: 'pointer', position: 'relative', overflow: 'hidden', paddingTop: '3.5rem' }}>
+      <div className={badgeClass} style={{
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        padding: '0.5rem',
+        textAlign: 'center',
+        fontWeight: 700,
+        fontSize: '0.75rem',
+        textTransform: 'uppercase',
+        letterSpacing: '1px',
+        borderBottom: '1px solid rgba(0,0,0,0.05)'
+      }}>
         {difficulty}
       </div>
       <div className="case-card-header">
@@ -44,14 +56,6 @@ const CaseCard = ({ data }) => {
         <div className="case-card-objective">{objective}</div>
       </div>
 
-      <div className="case-card-footer">
-        <div className="case-duration">
-          ⏱ {duration}
-        </div>
-        <button className="btn btn-sm btn-primary" style={{ borderRadius: '50px' }} onClick={handleStart}>
-          Start
-        </button>
-      </div>
     </div>
   );
 };

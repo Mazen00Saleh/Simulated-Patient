@@ -62,6 +62,7 @@
   transition: all 0.3s ease;
   position: relative;
 }
+
 .promo-banner-container:hover {
   background: linear-gradient(135deg, rgba(26, 86, 219, 0.12), rgba(126, 58, 242, 0.12));
 }
@@ -109,6 +110,7 @@
   box-shadow: 0 10px 25px -5px rgba(26, 86, 219, 0.3);
   transition: transform 0.2s, box-shadow 0.2s;
 }
+
 .btn-promo:hover {
   transform: translateY(-2px);
 }
@@ -152,6 +154,7 @@
   background: rgba(255, 255, 255, 0.9);
   backdrop-filter: blur(12px);
 }
+
 .search-input-field:focus {
   box-shadow: 0 20px 25px -5px rgba(26, 86, 219, 0.2), 0 8px 10px -6px rgba(26, 86, 219, 0.1);
   border-color: var(--primary);
@@ -174,7 +177,7 @@
   padding: 0.75rem 1.5rem;
   background: rgba(255, 255, 255, 0.9);
   backdrop-filter: blur(10px);
-  border-radius: 999px;
+  border-radius: var(--radius-md);
   box-shadow: 0 10px 25px -5px rgba(26, 86, 219, 0.1);
   max-width: fit-content;
   margin-left: auto;
@@ -190,6 +193,13 @@
 .pagination-btn-active {
   color: var(--dark);
   cursor: pointer;
+}
+
+.pagination-btn-current {
+  background-color: rgba(26, 86, 219, 0.75);
+  color: white;
+  border-color: transparent;
+  box-shadow: 0 2px 8px rgba(26, 86, 219, 0.2);
 }
 
 .alert-error {
