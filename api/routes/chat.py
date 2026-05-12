@@ -38,7 +38,7 @@ from api.database import (
     get_session_profile,
     get_case,
 )
-from src.patient_sim.groq_patient_sim import GroqPatientSimulator
+from src.patient_sim.openai_patient_sim import OpenAIPatientSimulator
 from src.patient_sim.interfaces import PatientSimConfig
 from src.patient_sim.prompts import build_system_prompt, build_system_prompt_from_profile
 
@@ -70,7 +70,7 @@ def _require_session(session_id: str):
 @router.post("/start", response_model=StartSessionResponse, status_code=status.HTTP_201_CREATED)
 def start_session(
     body: StartSessionRequest,
-    simulator: Annotated[GroqPatientSimulator, Depends(get_patient_simulator)],
+    simulator: Annotated[OpenAIPatientSimulator, Depends(get_patient_simulator)],
 ) -> StartSessionResponse:
     """
     Create a new simulation session.
@@ -184,15 +184,15 @@ def start_session(
 @router.post("/message", response_model=ChatMessageResponse)
 def send_message(
     body: ChatMessageRequest,
-    simulator: Annotated[GroqPatientSimulator, Depends(get_patient_simulator)],
+    simulator: Annotated[OpenAIPatientSimulator, Depends(get_patient_simulator)],
 ) -> ChatMessageResponse:
     """
     Send a trainee message to the simulated patient and receive the patient's reply.
     """
-    if not os.getenv("GROQ_API_KEY"):
+    if not os.getenv("OPENAI_API_KEY"):
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            detail="GROQ_API_KEY is not configured on the server.",
+            detail="OPENAI_API_KEY is not configured on the server.",
         )
 
     _require_session(body.session_id)

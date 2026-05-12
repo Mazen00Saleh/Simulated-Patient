@@ -20,7 +20,7 @@ from api.dependencies import get_trainee_pipeline
 from api.models import RubricResponse, TraineeEvalRequest, TraineeEvalResponse
 from api.database import get_session_info, get_session_history, save_evaluation, get_session_profile, get_case_rubric
 from src.evaluation.trainee.pipeline import TraineeEvalPipeline
-from src.trainee_judge.trainee_judge_groq import GroqJudgeConfig
+from src.trainee_judge.trainee_judge_openai import GroqJudgeConfig
 
 router = APIRouter(tags=["Evaluation"])
 
@@ -39,15 +39,15 @@ def evaluate_trainee(
     Evaluate the trainee's performance using the LLM judge and deterministic scorer.
 
     Requires at least one trainee message and one patient reply in the session.
-    Requires `GROQ_API_KEY` to be configured.
+    Requires `OPENAI_API_KEY` to be configured.
     """
     logger.info(f"Trainee evaluation triggered: session_id={body.session_id!r}")
     
-    if not os.getenv("GROQ_API_KEY"):
-        logger.error("GROQ_API_KEY not configured")
+    if not os.getenv("OPENAI_API_KEY"):
+        logger.error("OPENAI_API_KEY not configured")
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            detail="GROQ_API_KEY is not configured on the server.",
+            detail="OPENAI_API_KEY is not configured on the server.",
         )
 
     session = get_session_info(body.session_id)
@@ -68,7 +68,7 @@ def evaluate_trainee(
 
     # Build judge config from request overrides.
     judge_config = GroqJudgeConfig(
-        model=body.model or "openai/gpt-oss-120b",
+        model=body.model or "gpt-4o",
         temperature=0.0,
         seed=body.seed,
         reasoning_effort=body.reasoning_effort or "medium",

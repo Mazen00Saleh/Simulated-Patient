@@ -10,8 +10,8 @@ from functools import lru_cache
 
 from src.evaluation.patient.deepeval_patient import DeepEvalPatientEvaluator
 from src.evaluation.trainee.pipeline import TraineeEvalPipeline
-from src.patient_sim.groq_patient_sim import GroqPatientSimulator
-from src.trainee_judge.trainee_judge_groq import judge_trainee_with_groq
+from src.patient_sim.openai_patient_sim import OpenAIPatientSimulator
+from src.trainee_judge.trainee_judge_openai import judge_trainee_with_groq
 from src.trainee_judge.trainee_judge_schema import load_rubric as load_examiner_rubric
 from src.trainee_judge.trainee_score import score_from_judge_output
 from src.utils.logger import get_logger
@@ -20,13 +20,13 @@ logger = get_logger(__name__)
 
 
 @lru_cache(maxsize=1)
-def get_patient_simulator() -> GroqPatientSimulator:
+def get_patient_simulator() -> OpenAIPatientSimulator:
     try:
-        simulator = GroqPatientSimulator()
-        logger.debug("GroqPatientSimulator initialized successfully")
+        simulator = OpenAIPatientSimulator()
+        logger.debug("OpenAIPatientSimulator initialized successfully")
         return simulator
     except Exception as e:
-        logger.error(f"Error initializing GroqPatientSimulator: {type(e).__name__}: {e}")
+        logger.error(f"Error initializing OpenAIPatientSimulator: {type(e).__name__}: {e}")
         raise
 
 

@@ -27,7 +27,7 @@ from src.state.session_keys import (
     TRAINEE_SCORED,
 )
 from src.state.session_store import conversation_ready, get_history
-from src.trainee_judge.trainee_judge_groq import GroqJudgeConfig
+from src.trainee_judge.trainee_judge_openai import GroqJudgeConfig
 from src.utils.logger import get_logger
 
 logger = get_logger(__name__)
@@ -46,9 +46,9 @@ def render_trainee_eval_tab(*, trainee_pipeline: Any, legacy_regex_evaluator: Op
     st.subheader("Trainee evaluation (LLM judge + deterministic scorer)")
     st.caption("Evaluates the trainee using the full conversation + an examiner-editable rubric JSON.")
 
-    if not os.getenv("GROQ_API_KEY"):
-        logger.warning("GROQ_API_KEY missing in trainee evaluation tab")
-        st.warning("GROQ_API_KEY is missing. Add it to your environment or .env file to enable trainee judging.")
+    if not os.getenv("OPENAI_API_KEY"):
+        logger.warning("OPENAI_API_KEY missing in trainee evaluation tab")
+        st.warning("OPENAI_API_KEY is missing. Add it to your environment or .env file to enable trainee judging.")
         return
 
     if not conversation_ready():
@@ -102,7 +102,7 @@ def render_trainee_eval_tab(*, trainee_pipeline: Any, legacy_regex_evaluator: Op
     col_j1, col_j2, col_j3, col_j4 = st.columns(4)
 
     with col_j1:
-        model = st.selectbox("Judge model", ["openai/gpt-oss-120b", "openai/gpt-oss-20b"], index=0)
+        model = st.selectbox("Judge model", ["gpt-4o", "gpt-4o-mini", "gpt-4-turbo"], index=0)
     with col_j2:
         strict_schema = st.checkbox("Strict JSON Schema", value=True)
     with col_j3:
@@ -115,7 +115,6 @@ def render_trainee_eval_tab(*, trainee_pipeline: Any, legacy_regex_evaluator: Op
         temperature=0.0,
         seed=int(seed),
         reasoning_effort=reasoning_effort,
-        reasoning_format="hidden",
         max_completion_tokens=1400,
         strict_schema=bool(strict_schema),
     )
