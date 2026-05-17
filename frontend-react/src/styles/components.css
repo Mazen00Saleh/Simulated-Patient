@@ -46,14 +46,17 @@
 }
 
 .btn-logout {
-  border-color: rgba(255, 50, 50, 0.5) !important;
-  color: rgba(255, 50, 50, 0.9) !important;
+  background-color: #ef4444 !important;
+  border-color: #ef4444 !important;
+  color: white !important;
 }
 
 .btn-logout:hover {
-  background-color: rgba(255, 50, 50, 0.1) !important;
-  border-color: rgba(255, 50, 50, 0.8) !important;
-  color: rgba(255, 50, 50, 1) !important;
+  background-color: #dc2626 !important;
+  border-color: #dc2626 !important;
+  color: white !important;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
 }
 
 
@@ -222,4 +225,40 @@
 .alert-error {
   color: red;
   margin-bottom: 1rem;
+}
+
+/* ── Form Inputs (Global) ── */
+.form-group {
+  margin-bottom: 1.25rem;
+}
+
+.form-label {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-bottom: 0.5rem;
+}
+
+.form-input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  font-size: 1rem;
+  line-height: 1.5;
+  color: var(--text-main);
+  background-color: var(--bg-main);
+  background-clip: padding-box;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  border-radius: var(--radius-md);
+  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.form-input:focus {
+  outline: 0;
+  border-color: rgba(26, 86, 219, 0.5);
+  box-shadow: 0 0 0 0.25rem rgba(26, 86, 219, 0.25);
+}
+
+.form-input::placeholder {
+  color: rgba(0, 0, 0, 0.3);
 }

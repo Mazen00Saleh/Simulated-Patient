@@ -17,6 +17,7 @@ const AdminPage = () => {
     const [loadingDetail, setLoadingDetail] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
     const [filterType, setFilterType] = useState('all');
+    const [currentPage, setCurrentPage] = useState(1);
 
     useEffect(() => {
         fetchSessions();
@@ -69,6 +70,20 @@ const AdminPage = () => {
             (filterType === 'unevaluated' && !s.has_trainee_eval);
         return matchesQuery && matchesFilter;
     });
+
+    const itemsPerPage = 6;
+    const totalPages = Math.ceil(filteredSessions.length / itemsPerPage);
+    const indexOfLastItem = currentPage * itemsPerPage;
+    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+    const currentSessions = filteredSessions.slice(indexOfFirstItem, indexOfLastItem);
+
+    const handlePageChange = (page) => {
+        setCurrentPage(page);
+    };
+
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [searchQuery, filterType]);
 
     const totalSessions = sessions.length;
     const evaluatedCount = sessions.filter(s => s.has_trainee_eval).length;
@@ -143,7 +158,7 @@ const AdminPage = () => {
                                             <p>No sessions match your filter.</p>
                                         </div>
                                     ) : (
-                                        filteredSessions.map(s => (
+                                        currentSessions.map(s => (
                                             <SessionCard
                                                 key={s.session_id}
                                                 session={s}
@@ -153,6 +168,25 @@ const AdminPage = () => {
                                         ))
                                     )}
                                 </div>
+                                {totalPages > 1 && (
+                                    <div className="admin-pagination">
+                                        <button
+                                            className="btn btn-sm btn-outline"
+                                            onClick={() => handlePageChange(currentPage - 1)}
+                                            disabled={currentPage === 1}
+                                        >
+                                            &laquo; Prev
+                                        </button>
+                                        <span className="pagination-info">Page {currentPage} of {totalPages}</span>
+                                        <button
+                                            className="btn btn-sm btn-outline"
+                                            onClick={() => handlePageChange(currentPage + 1)}
+                                            disabled={currentPage === totalPages}
+                                        >
+                                            Next &raquo;
+                                        </button>
+                                    </div>
+                                )}
                             </div>
 
                             <div className="session-detail-panel">

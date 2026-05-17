@@ -1,62 +1,77 @@
 import { useNavigate } from 'react-router-dom';
 
 const CaseCard = ({ data }) => {
-  const { icon, title, subtitle, difficulty, skills, dynamics, objective, duration, case_id, condition } = data;
+  const { title, subtitle, difficulty, skills, dynamics, objective, duration, case_id, condition } = data;
   const navigate = useNavigate();
 
   // Determine badge color class based on difficulty
   const badgeClass =
-    difficulty.toLowerCase() === 'beginner' ? 'badge-success' :
-      difficulty.toLowerCase() === 'advanced' ? 'badge-danger' :
-        'badge-warning'; // default to yellow for intermediate or others
+    difficulty.toLowerCase() === 'beginner' ? 'badge-beginner' :
+      difficulty.toLowerCase() === 'advanced' ? 'badge-advanced' :
+        'badge-intermediate';
 
   const handleStart = () => {
-    // Navigate to app page with case_id and condition as query parameters
     const cond = condition || title;
     navigate(`/app?case_id=${encodeURIComponent(case_id || '')}&condition=${encodeURIComponent(cond)}&language=English`);
   };
 
   return (
-    <div className="feature-card case-card" onClick={handleStart} style={{ cursor: 'pointer', position: 'relative', overflow: 'hidden', paddingTop: '3.5rem' }}>
-      <div className={badgeClass} style={{
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        right: 0,
-        padding: '0.5rem',
-        textAlign: 'center',
-        fontWeight: 700,
-        fontSize: '0.75rem',
-        textTransform: 'uppercase',
-        letterSpacing: '1px',
-        borderBottom: '1px solid rgba(0,0,0,0.05)'
-      }}>
-        {difficulty}
-      </div>
-      <div className="case-card-header">
-        <h4>{title}</h4>
+    <div className="case-card-premium" onClick={handleStart}>
+      <div className="case-card-strip"></div>
+      <div className="case-card-content">
+        
+        <div className="case-badge-container">
+          <span className={`case-badge ${badgeClass}`}>{difficulty}</span>
+          <span className="case-duration">⏳ {duration || '15 min'}</span>
+        </div>
+
+        <h4 className="case-card-title">{title}</h4>
         <div className="case-card-subtitle">{subtitle}</div>
-      </div>
 
-      <div>
-        <div style={{ fontWeight: 600, fontSize: '0.9rem' }}>Skills</div>
-        <ul className="case-card-skills">
-          {skills.map((skill, index) => (
-            <li key={index}>{skill}</li>
-          ))}
-        </ul>
-      </div>
+        <div className="case-meta-group">
+          
+          <div className="case-meta-item">
+            <div className="case-meta-icon">🎯</div>
+            <div className="case-meta-text">
+              <div className="case-meta-label">Objective</div>
+              <div className="case-meta-value">{objective}</div>
+            </div>
+          </div>
 
-      <div style={{ marginTop: '1rem' }}>
-        <div style={{ fontWeight: 600, fontSize: '0.9rem' }}>Dynamics</div>
-        <div className="case-card-dynamics">{dynamics}</div>
-      </div>
+          <div className="case-meta-item">
+            <div className="case-meta-icon">🔄</div>
+            <div className="case-meta-text">
+              <div className="case-meta-label">Dynamics</div>
+              <div className="case-meta-value">{dynamics}</div>
+            </div>
+          </div>
 
-      <div style={{ marginTop: '1rem' }}>
-        <div style={{ fontWeight: 600, fontSize: '0.9rem' }}>Objective</div>
-        <div className="case-card-objective">{objective}</div>
-      </div>
+          {skills && skills.length > 0 && (
+            <div className="case-meta-item">
+              <div className="case-meta-icon">💡</div>
+              <div className="case-meta-text">
+                <div className="case-meta-label">Skills Focus</div>
+                <div className="case-skills-tags">
+                  {skills.slice(0, 3).map((skill, index) => (
+                    <span key={index} className="case-skill-tag">{skill}</span>
+                  ))}
+                  {skills.length > 3 && (
+                    <span className="case-skill-tag">+{skills.length - 3}</span>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
 
+        <div className="case-action-footer">
+          <span>Start Session</span>
+          <span className="case-action-arrow" style={{ display: 'flex', alignItems: 'center' }}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+          </span>
+        </div>
+
+      </div>
     </div>
   );
 };
