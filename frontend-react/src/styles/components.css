@@ -46,8 +46,14 @@
 }
 
 .btn-logout {
-  border-color: rgba(255, 50, 50, 0.5);
-  color: rgba(255, 50, 50, 0.9);
+  border-color: rgba(255, 50, 50, 0.5) !important;
+  color: rgba(255, 50, 50, 0.9) !important;
+}
+
+.btn-logout:hover {
+  background-color: rgba(255, 50, 50, 0.1) !important;
+  border-color: rgba(255, 50, 50, 0.8) !important;
+  color: rgba(255, 50, 50, 1) !important;
 }
 
 
