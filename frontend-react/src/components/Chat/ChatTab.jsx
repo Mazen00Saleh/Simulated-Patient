@@ -43,102 +43,37 @@ const ChatTab = () => {
     };
 
     return (
-        <div className="chat-tab-content">
-            {/* Patient Profile Section */}
-            {patientProfile && (
-                <div className="profile-section">
-                    <div className="profile-header">
-                        <h3>Patient Profile (Examiner View)</h3>
-                    </div>
-                    <div className="profile-content">
-                        <div className="profile-grid">
-                            <div className="profile-card">
-                                <h4>Demographics</h4>
-                                <div className="profile-item">
-                                    <span className="label">Age:</span>
-                                    <span className="value">{patientProfile.age || '—'}</span>
-                                </div>
-                                <div className="profile-item">
-                                    <span className="label">Gender:</span>
-                                    <span className="value">{patientProfile.gender || '—'}</span>
-                                </div>
-                                <div className="profile-item">
-                                    <span className="label">Occupation:</span>
-                                    <span className="value">{patientProfile.occupation || '—'}</span>
-                                </div>
-                            </div>
-
-                            <div className="profile-card">
-                                <h4>Clinical Presentation</h4>
-                                <div className="profile-item">
-                                    <span className="label">Chief Complaint:</span>
-                                    <span className="value">{patientProfile.chief_complaint || '—'}</span>
-                                </div>
-                                <div className="profile-item">
-                                    <span className="label">Severity:</span>
-                                    <span className="value">{patientProfile.symptom_severity || '—'}</span>
-                                </div>
-                                <div className="profile-item">
-                                    <span className="label">Onset:</span>
-                                    <span className="value">{patientProfile.symptom_onset || '—'}</span>
-                                </div>
-                            </div>
-
-                            <div className="profile-card">
-                                <h4>Communication Style</h4>
-                                <div className="profile-item">
-                                    <span className="label">Response Style:</span>
-                                    <span className="value">{patientProfile.response_style || '—'}</span>
-                                </div>
-                                <div className="profile-item">
-                                    <span className="label">Emotional Tone:</span>
-                                    <span className="value">{patientProfile.emotional_tone || '—'}</span>
-                                </div>
-                                <div className="profile-item">
-                                    <span className="label">Risk Status:</span>
-                                    <span className={`value ${patientProfile.risk_positive ? 'risk-positive' : ''}`}>
-                                        {patientProfile.risk_positive ? 'YES' : 'No'}
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-                        {patientProfile.risk_positive && patientProfile.risk_detail && (
-                            <div className="profile-details">
-                                <strong>Risk Detail:</strong> <span>{patientProfile.risk_detail}</span>
-                            </div>
-                        )}
-                    </div>
-                </div>
-            )}
+        <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
 
             {/* Chat Area */}
-            <div className="chat-area" ref={chatAreaRef}>
+            <div className="sp-chat-interface" ref={chatAreaRef}>
                 {messages.filter(msg => msg.role !== 'system').length === 0 && (
-                    <div className="empty-state">
-                        <div className="empty-icon">🏥</div>
-                        <h3>Session Started</h3>
-                        <p>Begin your interview with the patient.<br />Type your message below to start.</p>
+                    <div className="sp-chat-empty">
+                        <div style={{ fontSize: '3rem', opacity: 0.5 }}>🏥</div>
+                        <h3 style={{ fontSize: '1.1rem', margin: 0, color: 'var(--text-main)' }}>Session Started</h3>
+                        <p style={{ fontSize: '0.9rem', margin: 0, textAlign: 'center' }}>Begin your interview with the patient.<br />Type your message below to start.</p>
                     </div>
                 )}
                 {messages
                     .filter(msg => msg.role !== 'system')
                     .map((msg, idx) => (
-                        <div key={idx} className={`bubble ${msg.role}`}>
+                        <div key={idx} className={`sp-chat-bubble ${msg.role === 'user' ? 'sp-bubble-user' : msg.role === 'assistant' ? 'sp-bubble-bot' : 'sp-bubble-system'}`}>
                             {msg.content}
                         </div>
                     ))}
                 {isPending && (
-                    <div className="typing-indicator">
-                        <div className="typing-dot"></div>
-                        <div className="typing-dot"></div>
-                        <div className="typing-dot"></div>
+                    <div className="sp-typing-indicator">
+                        <div className="sp-typing-dot"></div>
+                        <div className="sp-typing-dot"></div>
+                        <div className="sp-typing-dot"></div>
                     </div>
                 )}
             </div>
 
             {/* Chat Input */}
-            <div className="chat-input-bar">
+            <div className="sp-chat-input-bar">
                 <textarea
+                    className="sp-chat-textarea"
                     value={messageInput}
                     onChange={handleInputChange}
                     onKeyDown={handleKeyDown}
@@ -147,7 +82,7 @@ const ChatTab = () => {
                     disabled={!isActive || sessionExpired || isPending}
                 />
                 <button
-                    className="send-btn"
+                    className="btn btn-primary sp-chat-send-btn"
                     onClick={handleSend}
                     disabled={!isActive || sessionExpired || !messageInput.trim() || isPending}
                 >

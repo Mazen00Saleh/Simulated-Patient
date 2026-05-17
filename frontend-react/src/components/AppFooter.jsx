@@ -1,44 +1,32 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import './AppFooter.css';
 
 const AppFooter = () => {
   return (
-    <footer className="app-footer">
-      <div className="app-footer-content">
-        <div className="app-footer-section">
-          <h3 className="app-footer-brand">
-            <span className="app-footer-icon">🔬</span>
-            PsychSim
-          </h3>
-          <p className="app-footer-description">
-            AI-powered mental health simulation platform for training healthcare professionals.
+    <footer className="footer" style={{
+      background: 'var(--bg-dark)',
+      color: 'var(--text-light)'
+    }}>
+      <div className="container footer-content">
+        <div className="footer-brand">
+          <div className="logo-text" style={{ color: 'white' }}>
+            PsychSim <span className="text-primary">App</span>
+          </div>
+          <p style={{ color: 'rgba(255, 255, 255, 0.6)', lineHeight: '1.7' }}>
+            A state-of-the-art simulation platform empowering the next generation of mental health professionals through safe, realistic, AI-powered patient interactions.
           </p>
         </div>
 
-        <div className="app-footer-section">
-          <h4 className="app-footer-heading">Navigate</h4>
-          <nav className="app-footer-links">
-            <Link to="/">Home</Link>
-            <Link to="/cases">Cases</Link>
-            <Link to="/#features">Features</Link>
-          </nav>
-        </div>
-
-        <div className="app-footer-section">
-          <h4 className="app-footer-heading">Learn More</h4>
-          <nav className="app-footer-links">
-            <a href="#" onClick={(e) => e.preventDefault()}>Documentation</a>
-            <a href="#" onClick={(e) => e.preventDefault()}>Support</a>
-            <a href="#" onClick={(e) => e.preventDefault()}>Contact</a>
-          </nav>
+        <div className="footer-links">
+          <h4 style={{ color: 'white', marginBottom: '0.5rem', fontSize: '1.1rem' }}>About Us</h4>
+          <Link to="/#features" style={{ color: 'rgba(255, 255, 255, 0.7)', textDecoration: 'none', transition: 'color 0.2s' }}>Features</Link>
+          <Link to="/#how-it-works" style={{ color: 'rgba(255, 255, 255, 0.7)', textDecoration: 'none', transition: 'color 0.2s' }}>How It Works</Link>
+          <Link to="/#roadmap" style={{ color: 'rgba(255, 255, 255, 0.7)', textDecoration: 'none', transition: 'color 0.2s' }}>Roadmap</Link>
         </div>
       </div>
 
-      <div className="app-footer-divider"></div>
-
-      <div className="app-footer-bottom">
-        <p>&copy; 2026 PsychSim. All rights reserved.</p>
+      <div className="container footer-bottom" style={{ color: 'rgba(255, 255, 255, 0.5)', }}>
+        <p>&copy; 2026 PsychSim Intake. All rights reserved.</p>
       </div>
     </footer>
   );

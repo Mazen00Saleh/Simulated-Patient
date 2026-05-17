@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import ChatTab from '../components/Chat/ChatTab';
-import PatientEvalTab from '../components/Evaluation/PatientEvalTab';
-import TraineeEvalTab from '../components/Evaluation/TraineeEvalTab';
 import AppNavbar from '../components/AppNavbar';
 import AppFooter from '../components/AppFooter';
 import { useSession } from '../context/SessionContext';
@@ -29,8 +27,12 @@ const AppPage = () => {
         setReasoningOverride,
         startSession,
         deleteSession,
-        clearSession
+        endSession,
+        clearSession,
+        messages
     } = useSession();
+
+    const userMessageCount = messages ? messages.filter(m => m.role === 'user').length : 0;
 
     // Check if condition/language/case_id were passed from cases page
     useEffect(() => {
@@ -64,141 +66,113 @@ const AppPage = () => {
     };
 
     return (
-        <div className="app-page-wrapper">
+        <div className="bg-light page-transition page-wrapper" style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
             <AppNavbar />
-            <div className="app-layout">
-                {/* Left Sidebar */}
-                <aside className="app-sidebar">
-                    <section className="sidebar-section">
-                        <div className="section-heading">Session Config</div>
 
-                        <label className="field-label">Condition</label>
-                        {caseId ? (
-                            <div className="field-input" style={{ opacity: 0.7, cursor: 'not-allowed' }}>
-                                {condition}
-                            </div>
-                        ) : (
-                            <input
-                                className="field-input"
-                                type="text"
-                                placeholder="Depression, Anxiety…"
-                                value={condition}
-                                onChange={(e) => setCondition(e.target.value)}
+            <div className="sp-app-container">
+                <div className="sp-main-layout">
+                    {/* Left Sidebar */}
+                    <aside className="sp-card-wrapper sp-sidebar">
+                        <section style={{ marginBottom: '2rem' }}>
+                            <h4 style={{ fontSize: '1.1rem', marginBottom: '1.5rem', color: 'var(--text-main)' }}>Session Configuration</h4>
+
+                            <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 600, color: 'var(--text-muted)', marginBottom: '0.5rem' }}>Condition</label>
+                            {caseId ? (
+                                <div style={{ width: '100%', padding: '0.75rem', borderRadius: '0.5rem', border: '1px solid #D1D5DB', marginBottom: '1.5rem', backgroundColor: '#f9fafb', color: '#6b7280', opacity: 0.7, cursor: 'not-allowed' }}>
+                                    {condition}
+                                </div>
+                            ) : (
+                                <input
+                                    style={{ width: '100%', padding: '0.75rem', borderRadius: '0.5rem', border: '1px solid #D1D5DB', marginBottom: '1.5rem', outline: 'none' }}
+                                    type="text"
+                                    placeholder="Depression, Anxiety…"
+                                    value={condition}
+                                    onChange={(e) => setCondition(e.target.value)}
+                                    disabled={isActive}
+                                />
+                            )}
+
+                            <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 600, color: 'var(--text-muted)', marginBottom: '0.5rem' }}>Language</label>
+                            <select
+                                style={{ width: '100%', padding: '0.75rem', borderRadius: '0.5rem', border: '1px solid #D1D5DB', marginBottom: '1.5rem', outline: 'none', backgroundColor: '#fff' }}
+                                value={language}
+                                onChange={(e) => setLanguage(e.target.value)}
                                 disabled={isActive}
-                            />
-                        )}
+                            >
+                                <option value="English">English</option>
+                                <option value="Arabic">Arabic</option>
+                            </select>
 
-                        <label className="field-label">Language</label>
-                        <select
-                            className="field-input"
-                            value={language}
-                            onChange={(e) => setLanguage(e.target.value)}
-                            disabled={isActive}
-                        >
-                            <option value="English">English</option>
-                            <option value="Arabic">Arabic</option>
-                        </select>
+                            <button
+                                className="btn btn-primary"
+                                style={{ width: '100%', padding: '0.85rem' }}
+                                onClick={handleStartSession}
+                                disabled={isActive || isPending}
+                            >
+                                {isActive ? '✓ Session Active' : isPending ? '…' : '▶ Start Session'}
+                            </button>
 
+                            {isActive && (
+                                <button
+                                    className="btn btn-danger-outline"
+                                    style={{ width: '100%', marginTop: '0.75rem' }}
+                                    onClick={handleDeleteSession}
+                                >
+                                    ✕ Delete Session
+                                </button>
+                            )}
+                        </section>
+
+                        {/* Session Status */}
+                        <section>
+                            <h4 style={{ fontSize: '1.1rem', marginBottom: '1.5rem', color: 'var(--text-main)' }}>Session Status</h4>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '1rem', backgroundColor: 'var(--bg-light)', borderRadius: '0.5rem', marginBottom: '1rem' }}>
+                                <div style={{ width: '12px', height: '12px', borderRadius: '50%', backgroundColor: isActive ? 'var(--success)' : 'var(--text-muted)' }}></div>
+                                <div>
+                                    <div style={{ fontWeight: 600, color: 'var(--text-main)', fontSize: '0.95rem' }}>{isActive ? `Session: ${sessionId?.slice(0, 8)}…` : 'No active session'}</div>
+                                    {isActive && (
+                                        <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginTop: '0.25rem' }}>{condition} ({language})</div>
+                                    )}
+                                </div>
+                            </div>
+                            {isActive && !sessionExpired && (
+                                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', padding: '1rem', backgroundColor: 'var(--bg-light)', borderRadius: '0.5rem', color: 'var(--primary)', fontWeight: 700, fontSize: '1.25rem', fontFamily: 'var(--font-heading)' }}>
+                                    <span>⏱️</span>
+                                    <span>{formatTime(remainingSeconds)}</span>
+                                </div>
+                            )}
+                            {sessionExpired && (
+                                <div style={{ padding: '1rem', backgroundColor: 'var(--warning-light)', color: 'var(--warning)', borderRadius: '0.5rem', textAlign: 'center', fontWeight: 600 }}>
+                                    Session expired
+                                </div>
+                            )}
+                        </section>
+                    </aside>
+
+                    {/* Main Content */}
+                    <main className="sp-main-content">
+                        <div className="sp-card-wrapper sp-chat-container">
+                            <ChatTab />
+                        </div>
+                    </main>
+                </div>
+
+                {/* End Session & Evaluate Button */}
+                {isActive && (
+                    <div style={{ display: 'flex', justifyContent: 'center', marginTop: '1rem', marginBottom: '2rem' }}>
                         <button
                             className="btn btn-primary"
-                            onClick={handleStartSession}
-                            disabled={isActive || isPending}
+                            style={{ padding: '1rem 3rem', fontSize: '1.2rem', fontWeight: 'bold' }}
+                            onClick={async () => {
+                                await endSession();
+                                navigate('/eval');
+                            }}
+                            disabled={userMessageCount < 3}
                         >
-                            {isActive ? '✓ Session Active' : isPending ? '…' : '▶ Start Session'}
+                            {userMessageCount < 3 ? `End Session & Evaluate (${3 - userMessageCount} more messages needed)` : 'End Session & Evaluate'}
                         </button>
-
-                        {isActive && (
-                            <button
-                                className="btn btn-danger"
-                                onClick={handleDeleteSession}
-                            >
-                                ✕ Delete Session
-                            </button>
-                        )}
-                    </section>
-
-                    {/* Session Status */}
-                    <section className="sidebar-section">
-                        <div className="section-heading">Session Status</div>
-                        <div className="status-display">
-                            <div className={`status-dot ${isActive ? 'active' : ''}`}></div>
-                            <div>
-                                <div className="status-text">{isActive ? `Session: ${sessionId?.slice(0, 8)}…` : 'No active session'}</div>
-                                {isActive && (
-                                    <div className="status-detail">{condition} ({language})</div>
-                                )}
-                            </div>
-                        </div>
-                        {isActive && !sessionExpired && (
-                            <div className="timer-display">
-                                <span className="timer-icon">⏱️</span>
-                                <span className="timer-text">{formatTime(remainingSeconds)}</span>
-                            </div>
-                        )}
-                        {sessionExpired && (
-                            <div className="status-expired">Session expired</div>
-                        )}
-                    </section>
-
-                    <section className="sidebar-section">
-                        <div className="section-heading">LLM Overrides <span className="hint">optional</span></div>
-
-                        <label className="field-label">Model</label>
-                        <input
-                            className="field-input"
-                            type="text"
-                            placeholder="default"
-                            value={modelOverride}
-                            onChange={(e) => setModelOverride(e.target.value)}
-                        />
-
-                        <label className="field-label">Reasoning Effort</label>
-                        <select
-                            className="field-input"
-                            value={reasoningOverride}
-                            onChange={(e) => setReasoningOverride(e.target.value)}
-                        >
-                            <option value="">default</option>
-                            <option value="low">low</option>
-                            <option value="medium">medium</option>
-                            <option value="high">high</option>
-                        </select>
-                    </section>
-                </aside>
-
-                {/* Main Content */}
-                <main className="app-main">
-                    {/* Tab Navigation */}
-                    <nav className="tab-nav">
-                        <button
-                            className={`tab-btn ${activeTab === 'chat' ? 'active' : ''}`}
-                            onClick={() => setActiveTab('chat')}
-                        >
-                            💬 Chat
-                        </button>
-                        <button
-                            className={`tab-btn ${activeTab === 'patient-eval' ? 'active' : ''}`}
-                            onClick={() => setActiveTab('patient-eval')}
-                            disabled={!isActive}
-                        >
-                            🩺 Patient Eval
-                        </button>
-                        <button
-                            className={`tab-btn ${activeTab === 'trainee-eval' ? 'active' : ''}`}
-                            onClick={() => setActiveTab('trainee-eval')}
-                            disabled={!isActive}
-                        >
-                            📋 Trainee Eval
-                        </button>
-                    </nav>
-
-                    {/* Tab Content */}
-                    <div className="tab-content">
-                        {activeTab === 'chat' && <ChatTab />}
-                        {activeTab === 'patient-eval' && <PatientEvalTab />}
-                        {activeTab === 'trainee-eval' && <TraineeEvalTab />}
                     </div>
-                </main>
+                )}
             </div>
             <AppFooter />
         </div>

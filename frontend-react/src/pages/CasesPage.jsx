@@ -151,7 +151,7 @@ const CasesPage = () => {
             {[...Array(totalPages)].map((_, i) => (
               <button
                 key={i}
-                className={`btn btn-sm ${currentPage === i + 1 ? 'btn-primary' : 'btn-outline'}`}
+                className={`btn btn-sm ${currentPage === i + 1 ? 'pagination-btn-current' : 'btn-outline'}`}
                 onClick={() => handlePageChange(i + 1)}
               >
                 {i + 1}

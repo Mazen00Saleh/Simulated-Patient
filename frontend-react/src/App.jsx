@@ -6,6 +6,7 @@ import CasesPage from './pages/CasesPage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import AppPage from './pages/AppPage';
+import EvalPage from './pages/EvalPage';
 
 import AdminPage from './pages/AdminPage';
 import AnalyticsPage from './pages/AnalyticsPage';
@@ -25,6 +26,7 @@ function App() {
             <Route path="/admin" element={<AdminPage />} />
             <Route path="/admin/analytics" element={<AnalyticsPage />} />
             <Route path="/admin/cases" element={<CaseEditorPage />} />
+            <Route path="/eval" element={<EvalPage />} />
           </Routes>
         </div>
       </SessionProvider>

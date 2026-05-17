@@ -1,6 +1,5 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import './AppNavbar.css';
 
 const AppNavbar = () => {
   const { isAuthenticated, user, logout } = useAuth();
@@ -10,47 +9,42 @@ const AppNavbar = () => {
     logout();
     navigate('/cases');
   };
-
   return (
-    <nav className="app-navbar">
-      <div className="app-navbar-container">
-        <div className="app-navbar-logo">
-          <Link to="/" className="app-navbar-logo-text">
-            <span className="app-navbar-icon">🔬</span>
-            PsychSim
-          </Link>
+    <nav className="navbar navbar-sticky">
+      <div className="container nav-container">
+        <div className="logo nav-logo-container">
+          <div className="logo-text">PsychSim <span className="text-primary">App</span></div>
+          <div className="nav-links nav-links-wrapper" style={{ marginTop: '6px' }}>
+            <Link to="/">Home</Link>
+            <Link to="/cases">Cases</Link>
+          </div>
         </div>
-
-        <div className="app-navbar-links">
-          <Link to="/" className="app-navbar-link">Home</Link>
-          <Link to="/cases" className="app-navbar-link">Cases</Link>
-
-          {user?.is_admin && (
-            <div className="app-navbar-dropdown">
-              <span className="app-navbar-link dropdown-toggle">
-                Admin ▾
-              </span>
-              <div className="dropdown-menu">
-                <Link to="/admin" className="dropdown-item">⚙️ Settings & Sessions</Link>
-                <Link to="/admin/analytics" className="dropdown-item">📊 Analytics</Link>
-                <Link to="/admin/cases" className="dropdown-item">✏️ Case Editor</Link>
-              </div>
+        {user?.is_admin && (
+          <div className="app-navbar-dropdown" style={{ marginLeft: '1rem', marginTop: '6px' }}>
+            <span className="dropdown-toggle" style={{ cursor: 'pointer', fontWeight: 500 }}>
+              Admin ▾
+            </span>
+            <div className="dropdown-menu">
+              <Link to="/admin" className="dropdown-item">⚙️ Settings & Sessions</Link>
+              <Link to="/admin/analytics" className="dropdown-item">📊 Analytics</Link>
+              <Link to="/admin/cases" className="dropdown-item">✏️ Case Editor</Link>
             </div>
-          )}
-        </div>
-
-        <div className="app-navbar-auth">
+          </div>
+        )}
+        <div className="nav-links nav-auth-container">
           {isAuthenticated ? (
             <>
-              <span className="app-navbar-greeting">Hi, {user?.name?.split(' ')[0]}</span>
+              <span className="nav-greeting">Hi, {user?.name?.split(' ')[0]}</span>
               <button
                 onClick={handleLogout}
-                className="app-navbar-logout"
+                className="btn btn-sm btn-outline btn-logout"
               >
                 Log Out
               </button>
             </>
-          ) : null}
+          ) : (
+            <Link></Link>
+          )}
         </div>
       </div>
     </nav>

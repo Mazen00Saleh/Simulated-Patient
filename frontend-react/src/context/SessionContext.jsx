@@ -28,6 +28,9 @@ export const SessionProvider = ({ children }) => {
     // Chat messages
     const [messages, setMessages] = useState([]);
 
+    // Evaluation results cache
+    const [evalResults, setEvalResults] = useState(null);
+
     const startSession = useCallback(async (cond, lang, passedCaseId) => {
         setIsPending(true);
         try {
@@ -85,6 +88,7 @@ export const SessionProvider = ({ children }) => {
                 setRemainingSeconds(600);
                 setMessages([]);
                 setPatientProfile(null);
+                setEvalResults(null);
 
                 // Load profile
                 await loadProfile(data.session_id);
@@ -155,6 +159,20 @@ export const SessionProvider = ({ children }) => {
         }
     }, [sessionId]);
 
+    const endSession = useCallback(async () => {
+        if (!sessionId) return;
+        try {
+            const response = await fetch(`${API}/session/${sessionId}/end`, { method: 'POST' });
+            if (response.ok) {
+                setSessionExpired(true);
+                setIsActive(false);
+                setRemainingSeconds(0);
+            }
+        } catch (err) {
+            console.error('Error ending session:', err);
+        }
+    }, [sessionId]);
+
     const clearSession = useCallback(() => {
         setSessionId(null);
         setCondition('');
@@ -165,6 +183,7 @@ export const SessionProvider = ({ children }) => {
         setRemainingSeconds(600);
         setMessages([]);
         setPatientProfile(null);
+        setEvalResults(null);
     }, []);
 
     // Timer effect: Poll session time every 30 seconds, but update display every 1 second
@@ -240,10 +259,15 @@ export const SessionProvider = ({ children }) => {
         // Messages
         messages,
 
+        // Eval Cache
+        evalResults,
+        setEvalResults,
+
         // Actions
         startSession,
         sendMessage,
         deleteSession,
+        endSession,
         clearSession,
         loadProfile
     };
