@@ -94,9 +94,9 @@ def render_chat_tab(*, patient_simulator: Any) -> None:
         if not history:
             st.warning("Click Start / Reset conversation first.")
         else:
-            if not os.getenv("GROQ_API_KEY"):
-                logger.error("GROQ_API_KEY is missing")
-                st.error("GROQ_API_KEY is missing. Add it to your environment or .env file.")
+            if not os.getenv("OPENAI_API_KEY"):
+                logger.error("OPENAI_API_KEY is missing")
+                st.error("OPENAI_API_KEY is missing. Add it to your environment or .env file.")
             else:
                 logger.debug("User message received, appending to history")
                 append_message("user", user_message)

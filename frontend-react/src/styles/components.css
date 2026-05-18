@@ -46,8 +46,17 @@
 }
 
 .btn-logout {
-  border-color: rgba(255, 50, 50, 0.5);
-  color: rgba(255, 50, 50, 0.9);
+  background-color: #ef4444 !important;
+  border-color: #ef4444 !important;
+  color: white !important;
+}
+
+.btn-logout:hover {
+  background-color: #dc2626 !important;
+  border-color: #dc2626 !important;
+  color: white !important;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
 }
 
 
@@ -62,6 +71,7 @@
   transition: all 0.3s ease;
   position: relative;
 }
+
 .promo-banner-container:hover {
   background: linear-gradient(135deg, rgba(26, 86, 219, 0.12), rgba(126, 58, 242, 0.12));
 }
@@ -109,6 +119,7 @@
   box-shadow: 0 10px 25px -5px rgba(26, 86, 219, 0.3);
   transition: transform 0.2s, box-shadow 0.2s;
 }
+
 .btn-promo:hover {
   transform: translateY(-2px);
 }
@@ -152,6 +163,7 @@
   background: rgba(255, 255, 255, 0.9);
   backdrop-filter: blur(12px);
 }
+
 .search-input-field:focus {
   box-shadow: 0 20px 25px -5px rgba(26, 86, 219, 0.2), 0 8px 10px -6px rgba(26, 86, 219, 0.1);
   border-color: var(--primary);
@@ -174,11 +186,22 @@
   padding: 0.75rem 1.5rem;
   background: rgba(255, 255, 255, 0.9);
   backdrop-filter: blur(10px);
-  border-radius: 999px;
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(0, 0, 0, 0.05);
   box-shadow: 0 10px 25px -5px rgba(26, 86, 219, 0.1);
   max-width: fit-content;
   margin-left: auto;
   margin-right: auto;
+}
+
+.pagination-wrapper .btn-outline {
+  color: #000 !important;
+  border-color: rgba(0, 0, 0, 0.1);
+}
+
+.pagination-wrapper .btn-outline:hover {
+  background: rgba(0, 0, 0, 0.05);
+  border-color: rgba(0, 0, 0, 0.2);
 }
 
 .pagination-btn-disabled {
@@ -188,11 +211,54 @@
 }
 
 .pagination-btn-active {
-  color: var(--dark);
+  color: #000;
   cursor: pointer;
+}
+
+.pagination-btn-current {
+  background-color: rgba(26, 86, 219, 0.75);
+  color: white;
+  border-color: transparent;
+  box-shadow: 0 2px 8px rgba(26, 86, 219, 0.2);
 }
 
 .alert-error {
   color: red;
   margin-bottom: 1rem;
+}
+
+/* ── Form Inputs (Global) ── */
+.form-group {
+  margin-bottom: 1.25rem;
+}
+
+.form-label {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-bottom: 0.5rem;
+}
+
+.form-input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  font-size: 1rem;
+  line-height: 1.5;
+  color: var(--text-main);
+  background-color: var(--bg-main);
+  background-clip: padding-box;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  border-radius: var(--radius-md);
+  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.form-input:focus {
+  outline: 0;
+  border-color: rgba(26, 86, 219, 0.5);
+  box-shadow: 0 0 0 0.25rem rgba(26, 86, 219, 0.25);
+}
+
+.form-input::placeholder {
+  color: rgba(0, 0, 0, 0.3);
 }

@@ -72,6 +72,7 @@ from api.routes.trainee_eval import router as trainee_eval_router
 from api.routes.session import router as session_router
 from api.routes.admin import router as admin_router
 from api.routes.auth import router as auth_router
+from api.routes.cases import router as cases_router, admin_router as cases_admin_router
 
 API_V1_PREFIX = "/api/v1"
 
@@ -81,6 +82,8 @@ app.include_router(trainee_eval_router, prefix=API_V1_PREFIX)
 app.include_router(session_router, prefix=API_V1_PREFIX)
 app.include_router(admin_router, prefix=API_V1_PREFIX)
 app.include_router(auth_router, prefix=API_V1_PREFIX)
+app.include_router(cases_router, prefix=API_V1_PREFIX)
+app.include_router(cases_admin_router, prefix=API_V1_PREFIX)
 
 @app.get("/admin")
 async def admin_page():
@@ -89,3 +92,8 @@ async def admin_page():
 @app.get("/health", tags=["Meta"])
 def health() -> dict:
     return {"status": "ok"}
+
+@app.post("/api/v1/chat/test", tags=["Meta"])
+def test_endpoint():
+    """Simple test endpoint to verify backend is responding with JSON."""
+    return {"status": "ok", "message": "Backend is working"}

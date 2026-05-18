@@ -49,7 +49,7 @@ class PatientProfile:
 
 @dataclass(frozen=True)
 class PatientSimConfig:
-    model: str = "openai/gpt-oss-120b"
+    model: str = "gpt-4o"
     temperature: float = 1.0
     max_completion_tokens: int = 8192
     top_p: float = 1.0

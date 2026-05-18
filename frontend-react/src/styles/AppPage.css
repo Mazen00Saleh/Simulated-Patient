@@ -1,0 +1,389 @@
+/* ── RESTORED BUTTON STYLES ── */
+.btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+.btn:active:not(:disabled) {
+    transform: scale(0.97);
+}
+
+.btn-primary:hover:not(:disabled) {
+    opacity: 0.9;
+}
+
+.btn-danger-outline {
+    background: transparent;
+    color: var(--danger);
+    border: 1px solid var(--danger);
+    transition: all 0.2s ease;
+}
+
+.btn-danger-outline:hover:not(:disabled) {
+    background: rgba(239, 68, 68, 0.1);
+}
+
+/* 
+ * AppPage, ChatTab, and TraineeEvalTab Styles 
+ * Prefixed with .sp- (Simulated Patient) to avoid interference
+ */
+
+/* ── PAGE LAYOUT ── */
+.sp-app-container {
+    padding-top: 6rem;
+    padding-bottom: 4rem;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    width: 95%;
+    max-width: 1600px;
+    margin: 0 auto;
+}
+
+.sp-main-layout {
+    display: flex;
+    gap: 2rem;
+    align-items: flex-start;
+    flex-wrap: wrap;
+}
+
+.sp-sidebar {
+    width: 320px;
+    flex-shrink: 0;
+    padding: 1.5rem;
+    flex-grow: 1;
+    max-width: 100%;
+}
+
+.sp-main-content {
+    flex: 999;
+    min-width: 300px;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.sp-chat-container {
+    padding: 0;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    height: 650px;
+}
+
+.sp-eval-container {
+    padding: 1.5rem;
+}
+
+/* ── CARDS & COMMON ── */
+.sp-card-wrapper {
+    padding: 1.5rem;
+    background: #fff;
+    border: 1px solid #E5E7EB;
+    border-radius: 1rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.sp-section-card {
+    padding: 1.5rem;
+    background: #fff;
+    border-radius: 0.75rem;
+    border: 1px solid #E5E7EB;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.sp-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+/* ── PATIENT PROFILE ── */
+.sp-profile-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+}
+
+.sp-profile-card {
+    background: var(--bg-light);
+    border: 1px solid #E5E7EB;
+    border-radius: 8px;
+    padding: 1rem;
+}
+
+.sp-profile-title {
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 10px;
+    letter-spacing: 0.5px;
+}
+
+.sp-profile-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    font-size: 0.9rem;
+}
+
+/* ── CHAT TAB ── */
+.sp-chat-interface {
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+.sp-chat-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    gap: 10px;
+    color: var(--text-muted);
+}
+
+.sp-chat-bubble {
+    display: inline-block;
+    max-width: 70%;
+    padding: 10px 14px;
+    border-radius: 10px;
+    word-wrap: break-word;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    margin: 10px 1.5rem;
+}
+
+.sp-bubble-user {
+    align-self: flex-end;
+    background: var(--primary);
+    color: white;
+}
+
+.sp-bubble-bot {
+    align-self: flex-start;
+    background: #F3F4F6;
+    color: #1F2937;
+    border: 1px solid #E5E7EB;
+    box-shadow: none;
+}
+
+.sp-bubble-system {
+    align-self: center;
+    background: var(--bg-light);
+    color: var(--text-muted);
+    border: 1px solid #E5E7EB;
+    box-shadow: none;
+    text-align: center;
+}
+
+.sp-typing-indicator {
+    display: flex;
+    gap: 4px;
+    padding: 10px 14px;
+    width: fit-content;
+    background: #F3F4F6;
+    border: 1px solid #E5E7EB;
+    border-radius: 10px;
+    margin: 10px 1.5rem;
+    align-self: flex-start;
+}
+
+.sp-typing-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--text-muted);
+    animation: sp-typing 1.4s infinite;
+}
+
+.sp-typing-dot:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.sp-typing-dot:nth-child(3) {
+    animation-delay: 0.4s;
+}
+
+@keyframes sp-typing {
+
+    0%,
+    60%,
+    100% {
+        opacity: 0.3;
+    }
+
+    30% {
+        opacity: 1;
+    }
+}
+
+.sp-chat-input-bar {
+    display: flex;
+    gap: 10px;
+    padding: 1.5rem;
+    background: #fff;
+    border-top: 1px solid #E5E7EB;
+    flex-shrink: 0;
+}
+
+.sp-chat-textarea {
+    flex: 1;
+    background: var(--bg-light);
+    border: 1px solid #D1D5DB;
+    border-radius: 8px;
+    color: var(--text-main);
+    font-family: var(--font-body);
+    font-size: 0.95rem;
+    padding: 10px 12px;
+    resize: none;
+    outline: none;
+    max-height: 120px;
+    transition: border-color 0.2s;
+}
+
+.sp-chat-textarea:focus {
+    border-color: var(--primary);
+}
+
+.sp-chat-send-btn {
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    border-radius: 8px;
+}
+
+/* ── TRAINEE EVAL ── */
+.sp-eval-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    align-items: flex-start;
+}
+
+.sp-eval-results-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.sp-eval-score-summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.5rem;
+    border-radius: 0.75rem;
+}
+
+.sp-eval-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+    font-size: 0.9rem;
+}
+
+.sp-eval-table th {
+    padding: 0.75rem 0.5rem;
+    font-weight: 600;
+}
+
+.sp-eval-table td {
+    padding: 0.75rem 0.5rem;
+}
+
+.sp-eval-table tr {
+    border-bottom: 1px solid #E5E7EB;
+}
+
+.sp-rationale-btn {
+    background: transparent;
+    border: none;
+    color: var(--primary);
+    cursor: pointer;
+    text-align: left;
+    padding: 0;
+    font: inherit;
+    font-size: 0.85rem;
+}
+
+.sp-rationale-btn:hover {
+    text-decoration: underline;
+}
+
+/* ── MODAL ── */
+.sp-modal-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 50;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+}
+
+.sp-modal-backdrop {
+    position: absolute;
+    inset: 0;
+    background-color: rgba(15, 23, 42, 0.4);
+    backdrop-filter: blur(4px);
+}
+
+.sp-modal-content {
+    position: relative;
+    background: #fff;
+    border-radius: 1rem;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    width: 100%;
+    max-width: 600px;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.sp-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.5rem;
+    border-bottom: 1px solid #E5E7EB;
+    background: #F9FAFB;
+}
+
+.sp-modal-close {
+    background: transparent;
+    border: none;
+    font-size: 1.2rem;
+    cursor: pointer;
+    color: var(--text-muted);
+    padding: 0.25rem;
+}
+
+.sp-modal-close:hover {
+    color: var(--text-main);
+}
+
+.sp-modal-body {
+    padding: 1.5rem;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.sp-modal-field {
+    padding: 1.25rem;
+    background: var(--bg-light);
+    border-radius: 0.5rem;
+    border: 1px solid #E5E7EB;
+}

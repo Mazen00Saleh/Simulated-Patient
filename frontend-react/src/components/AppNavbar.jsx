@@ -17,15 +17,23 @@ const AppNavbar = () => {
           <div className="nav-links nav-links-wrapper" style={{ marginTop: '6px' }}>
             <Link to="/">Home</Link>
             <Link to="/cases">Cases</Link>
+            {user?.is_admin && (
+              <>
+                <Link to="/admin">Dashboard</Link>
+                <Link to="/admin/analytics">Analytics</Link>
+                <Link to="/admin/cases">Case Editor</Link>
+              </>
+            )}
           </div>
         </div>
+
         <div className="nav-links nav-auth-container">
           {isAuthenticated ? (
             <>
               <span className="nav-greeting">Hi, {user?.name?.split(' ')[0]}</span>
               <button
                 onClick={handleLogout}
-                className="btn btn-sm btn-outline btn-logout"
+                className="btn btn-sm btn-logout"
               >
                 Log Out
               </button>

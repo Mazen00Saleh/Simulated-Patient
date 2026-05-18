@@ -1,8 +1,8 @@
-"""src.patient_sim.groq_patient_sim
+"""src.patient_sim.openai_patient_sim
 
-Groq-backed patient simulator.
+OpenAI-backed patient simulator.
 
-This is a thin wrapper around Groq Chat Completions.
+Drop-in replacement for GroqPatientSimulator, using the openai SDK.
 """
 
 from __future__ import annotations
@@ -13,7 +13,7 @@ import re
 import time
 from typing import Optional
 
-from groq import Groq
+from openai import OpenAI
 
 from src.patient_sim.interfaces import Conversation, PatientProfile, PatientSimConfig
 from src.utils.logger import get_logger, log_call
@@ -21,15 +21,15 @@ from src.utils.logger import get_logger, log_call
 logger = get_logger(__name__)
 
 
-class GroqPatientSimulator:
+class OpenAIPatientSimulator:
     def __init__(self, *, api_key: Optional[str] = None) -> None:
-        self._client = Groq(api_key=api_key or os.getenv("GROQ_API_KEY"))
+        self._client = OpenAI(api_key=api_key or os.getenv("OPENAI_API_KEY"))
 
     @log_call
     def generate_profile(self, condition: str, language: str, case_details: Optional[str] = None) -> PatientProfile:
         """
         Makes a single LLM call to generate a random PatientProfile for a session.
-        Uses a cheaper/faster model since this is a structured generation task.
+        Uses a faster model since this is a structured generation task.
         Falls back to a minimal default PatientProfile if parsing fails.
 
         Retries up to 3 times on API errors with exponential backoff.
@@ -45,7 +45,7 @@ class GroqPatientSimulator:
             try:
                 logger.debug(f"Profile generation attempt {attempt + 1}/{max_retries}")
                 resp = self._client.chat.completions.create(
-                    model="openai/gpt-oss-20b",
+                    model="gpt-4o-mini",
                     messages=[
                         {"role": "system", "content": system_prompt},
                         {
@@ -56,11 +56,10 @@ class GroqPatientSimulator:
                             ),
                         },
                     ],
-                    temperature=1.5,  # Increased for more diverse profiles
-                    max_completion_tokens=1024,
-                    stream=False,
+                    temperature=1.2,  # Increased for more diverse profiles (capped for OpenAI)
+                    max_tokens=1024,
                 )
-                logger.debug(f"LLM response received, parsing JSON")
+                logger.debug("LLM response received, parsing JSON")
 
                 raw = resp.choices[0].message.content.strip()
 
@@ -70,7 +69,7 @@ class GroqPatientSimulator:
                     match = re.search(r"```(?:json)?\s*(\{.*?\})\s*```", raw, re.DOTALL)
                     if match:
                         raw = match.group(1).strip()
-                
+
                 # Try to find JSON object within text
                 if not raw.startswith("{"):
                     match = re.search(r"\{.*\}", raw, re.DOTALL)
@@ -131,18 +130,14 @@ class GroqPatientSimulator:
 
     @log_call
     def generate(self, conversation: Conversation, *, config: PatientSimConfig) -> str:
-        logger.info(f"Groq patient generation: model={config.model}, temp={config.temperature}")
+        logger.info(f"OpenAI patient generation: model={config.model}, temp={config.temperature}")
         logger.debug(f"Conversation history: {len(conversation)} messages")
         resp = self._client.chat.completions.create(
             model=config.model,
             messages=conversation,
             temperature=config.temperature,
-            max_completion_tokens=config.max_completion_tokens,
+            max_tokens=config.max_completion_tokens,
             top_p=config.top_p,
-            reasoning_effort=config.reasoning_effort,
-            reasoning_format=config.reasoning_format,
-            stream=False,
-            stop=None,
         )
         result = resp.choices[0].message.content
         logger.debug(f"Generated response length: {len(result)} chars")
