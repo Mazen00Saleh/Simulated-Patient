@@ -1,0 +1,2 @@
+Requirement already satisfied: pymongo in /home/dawoud/miniconda3/envs/capstone1/lib/python3.14/site-packages (4.16.0)
+Requirement already satisfied: dnspython<3.0.0,>=2.6.1 in /home/dawoud/miniconda3/envs/capstone1/lib/python3.14/site-packages (from pymongo) (2.8.0)

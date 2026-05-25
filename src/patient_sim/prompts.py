@@ -13,7 +13,7 @@ Contains three builders:
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 
 from src.utils.logger import get_logger
 
@@ -105,7 +105,8 @@ Key guidelines:
 2. IMPORTANT: Vary response_style and emotional_tone - never use the same values twice in a row
 3. Match disclosure topics to the condition (e.g., depression: more withdrawn; anxiety: more worried)
 4. If risk_positive is true, include suicidal ideation mention in risk_detail and in resist_disclosing
-5. Return ONLY the JSON object - no markdown, no code blocks, no explanation"""
+5. If language is Arabic, use natural colloquial phrases (Ammiya) for text fields like chief_complaint and relevant_life_events.
+6. Return ONLY the JSON object - no markdown, no code blocks, no explanation"""
 
 
 def build_system_prompt_from_profile(profile: "PatientProfile") -> str:
@@ -226,6 +227,11 @@ def build_system_prompt_from_profile(profile: "PatientProfile") -> str:
         else "none currently"
     )
 
+    # -- Arabic Dialect Instruction --------------------------------------------
+    dialect_instruction = ""
+    if profile.language.lower() == "arabic":
+        dialect_instruction = "IMPORTANT: Use natural, everyday colloquial Arabic (Ammiya) as a real patient in a clinic would speak. Avoid formal or classical Arabic (Fusha). Include diacritics (harakat)."
+
     # ── Final prompt assembly ─────────────────────────────────────────────────
     return f"""You are a patient at a psychiatry clinic for an intake interview. You are a real person, NOT an AI. Never break character.
 
@@ -233,7 +239,7 @@ PROFILE: Age {profile.age}, {profile.gender}, {profile.occupation}. Condition: {
 
 RISK: {risk_block}
 
-COMMUNICATION: Speech style: {style_instruction}. Emotional tone: {tone_instruction}. Max 2–3 sentences per reply (hard limit).
+COMMUNICATION: Speech style: {style_instruction}. Emotional tone: {tone_instruction}. Max 2–3 sentences per reply (hard limit). {dialect_instruction}
 
 DISCLOSURE: Freely share: {freely}. Only if asked: {if_asked}. Resist: {resist}. After one deflection, answer reluctantly on repeat questions.
 
