@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import ChatTab from '../components/Chat/ChatTab';
+import VoiceMode from '../components/Chat/VoiceMode';
 import AppNavbar from '../components/AppNavbar';
 import AppFooter from '../components/AppFooter';
 import { useSession } from '../context/SessionContext';
@@ -8,6 +9,7 @@ import '../styles/AppPage.css';
 
 const AppPage = () => {
     const [activeTab, setActiveTab] = useState('chat');
+    const [interactionMode, setInteractionMode] = useState('chat'); // 'chat' | 'voice'
     const [condition, setCondition] = useState('Depression');
     const [language, setLanguage] = useState('English');
     const [caseId, setCaseId] = useState(null);
@@ -33,6 +35,11 @@ const AppPage = () => {
     } = useSession();
 
     const userMessageCount = messages ? messages.filter(m => m.role === 'user').length : 0;
+
+    // Always scroll to top when page mounts
+    useEffect(() => {
+        window.scrollTo(0, 0);
+    }, []);
 
     // Check if condition/language/case_id were passed from cases page
     useEffect(() => {
@@ -152,7 +159,79 @@ const AppPage = () => {
                     {/* Main Content */}
                     <main className="sp-main-content">
                         <div className="sp-card-wrapper sp-chat-container">
-                            <ChatTab />
+
+                            {/* ── Mode Toggle ── */}
+                            <div style={modeToggleStyle.wrapper}>
+                                <button
+                                    id="mode-tab-chat"
+                                    style={{
+                                        ...modeToggleStyle.tab,
+                                        ...(interactionMode === 'chat' ? modeToggleStyle.tabActive : modeToggleStyle.tabInactive),
+                                    }}
+                                    onClick={() => setInteractionMode('chat')}
+                                >
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '0.4rem' }}>
+                                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                                    </svg>
+                                    Text Chat
+                                </button>
+                                <button
+                                    id="mode-tab-voice"
+                                    style={{
+                                        ...modeToggleStyle.tab,
+                                        ...(interactionMode === 'voice' ? modeToggleStyle.tabActive : modeToggleStyle.tabInactive),
+                                    }}
+                                    onClick={() => setInteractionMode('voice')}
+                                >
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '0.4rem' }}>
+                                        <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" />
+                                        <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
+                                        <line x1="12" y1="19" x2="12" y2="23" />
+                                        <line x1="8" y1="23" x2="16" y2="23" />
+                                    </svg>
+                                    Voice Mode
+                                    <span style={modeToggleStyle.badge}>NEW</span>
+                                </button>
+                            </div>
+
+                            {/* ── Content ── */}
+                            {interactionMode === 'voice' ? (
+                                <div style={{ display: 'flex', flexDirection: 'column', height: '100%', gap: '1rem', padding: '1rem' }}>
+                                    {/* Voice panel */}
+                                    <VoiceMode language={language} />
+
+                                    {/* Conversation transcript (read-only) */}
+                                    <div style={{ flex: 1, overflowY: 'auto' }}>
+                                        <div style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.75rem' }}>
+                                            Conversation Transcript
+                                        </div>
+                                        {messages.filter(m => m.role !== 'system').length === 0 ? (
+                                            <div style={{ textAlign: 'center', color: 'var(--text-muted)', padding: '2rem 0', fontSize: '0.9rem' }}>
+                                                🎙️ Conversation will appear here as you speak
+                                            </div>
+                                        ) : (
+                                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
+                                                {messages.filter(m => m.role !== 'system').map((msg, idx) => (
+                                                    <div key={idx} style={{
+                                                        display: 'flex',
+                                                        flexDirection: 'column',
+                                                        alignItems: msg.role === 'user' ? 'flex-end' : 'flex-start',
+                                                    }}>
+                                                        <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginBottom: '0.2rem', fontWeight: 600 }}>
+                                                            {msg.role === 'user' ? '🩺 Trainee' : '🏥 Patient'}
+                                                        </span>
+                                                        <div className={`sp-chat-bubble ${msg.role === 'user' ? 'sp-bubble-user' : 'sp-bubble-bot'}`}>
+                                                            {msg.content}
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            ) : (
+                                <ChatTab />
+                            )}
                         </div>
                     </main>
                 </div>
@@ -177,6 +256,52 @@ const AppPage = () => {
             <AppFooter />
         </div>
     );
+};
+
+// ── Mode toggle styles ──────────────────────────────────────────────────────
+const modeToggleStyle = {
+    wrapper: {
+        display: 'flex',
+        gap: '0.25rem',
+        padding: '0.35rem',
+        backgroundColor: 'var(--bg-light)',
+        borderRadius: '0.75rem',
+        border: '1px solid rgba(0,0,0,0.06)',
+        margin: '0.75rem 0.75rem 0',
+    },
+    tab: {
+        flex: 1,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '0.6rem 1rem',
+        borderRadius: '0.5rem',
+        border: 'none',
+        cursor: 'pointer',
+        fontSize: '0.875rem',
+        fontWeight: 600,
+        fontFamily: 'var(--font-body)',
+        transition: 'all 0.2s ease',
+    },
+    tabActive: {
+        backgroundColor: '#fff',
+        color: 'var(--primary)',
+        boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
+    },
+    tabInactive: {
+        backgroundColor: 'transparent',
+        color: 'var(--text-muted)',
+    },
+    badge: {
+        marginLeft: '0.5rem',
+        fontSize: '0.6rem',
+        fontWeight: 800,
+        padding: '0.1rem 0.4rem',
+        borderRadius: '999px',
+        backgroundColor: 'var(--primary)',
+        color: 'white',
+        letterSpacing: '0.05em',
+    },
 };
 
 export default AppPage;

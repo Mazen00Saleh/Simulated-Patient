@@ -241,7 +241,7 @@ const SessionCard = ({ session, isSelected, onClick }) => {
 };
 
 const SessionDetail = ({ data }) => {
-    const { session, messages, evaluations } = data;
+    const { session, messages, evaluations, case: caseData } = data;
     const lang = session.language || 'English';
     const langClass = lang === 'Arabic' ? 'lang-ar' : 'lang-en';
     const created = session.created_at ? new Date(session.created_at).toLocaleString() : '—';
@@ -249,6 +249,15 @@ const SessionDetail = ({ data }) => {
 
     const traineeEvals = evaluations.filter(e => e.eval_type === 'trainee');
     const patientEvals = evaluations.filter(e => e.eval_type === 'patient');
+
+    let personaData = null;
+    if (session.profile) {
+        try {
+            personaData = typeof session.profile === 'string' ? JSON.parse(session.profile) : session.profile;
+        } catch (e) {
+            console.error("Failed to parse persona profile", e);
+        }
+    }
 
     return (
         <>
@@ -268,6 +277,18 @@ const SessionDetail = ({ data }) => {
             </div>
 
             <div className="detail-body">
+                {personaData && (
+                    <CollapsibleSection title="🎭 Patient Persona" defaultOpen={true}>
+                        <PatientPersonaView persona={personaData} />
+                    </CollapsibleSection>
+                )}
+
+                {caseData && (
+                    <CollapsibleSection title="📄 Patient Case" defaultOpen={false}>
+                        <CaseDetailView caseData={caseData} />
+                    </CollapsibleSection>
+                )}
+
                 <CollapsibleSection title="💬 Conversation" defaultOpen={true}>
                     <ConversationView messages={messages} />
                 </CollapsibleSection>
@@ -293,6 +314,103 @@ const SessionDetail = ({ data }) => {
                 </CollapsibleSection>
             </div>
         </>
+    );
+};
+
+const PatientPersonaView = ({ persona }) => {
+    return (
+        <div className="eval-detail-block patient-persona-view">
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '1rem', marginBottom: '1.5rem' }}>
+                <div className="info-item">
+                    <span className="info-label">Age / Gender:</span>
+                    <span className="info-value">{persona.age} / {persona.gender}</span>
+                </div>
+                <div className="info-item">
+                    <span className="info-label">Occupation:</span>
+                    <span className="info-value">{persona.occupation}</span>
+                </div>
+                <div className="info-item">
+                    <span className="info-label">Tone / Style:</span>
+                    <span className="info-value">{persona.emotional_tone} / {persona.response_style}</span>
+                </div>
+                {persona.risk_positive && (
+                    <div className="info-item">
+                        <span className="info-label" style={{ color: '#ef4444' }}>⚠️ Risk Positive</span>
+                        <span className="info-value" style={{ color: '#ef4444' }}>{persona.risk_detail || 'Yes'}</span>
+                    </div>
+                )}
+            </div>
+
+            <div className="persona-section">
+                <h4>Chief Complaint</h4>
+                <p>{persona.chief_complaint || 'None'}</p>
+            </div>
+
+            <div className="persona-section">
+                <h4>Symptom History</h4>
+                <p><strong>Onset:</strong> {persona.symptom_onset}</p>
+                <p><strong>Severity:</strong> {persona.symptom_severity}</p>
+            </div>
+
+            <div className="persona-section">
+                <h4>Background</h4>
+                <p><strong>Relevant Life Events:</strong> {Array.isArray(persona.relevant_life_events) ? persona.relevant_life_events.join(', ') : persona.relevant_life_events || 'None'}</p>
+                <p><strong>Past Psychiatric History:</strong> {persona.past_psychiatric_history || 'None'}</p>
+                <p><strong>Substance Use:</strong> {persona.substance_use || 'None'}</p>
+            </div>
+
+            <div className="persona-section">
+                <h4>Disclosure Dynamics</h4>
+                <p><strong>Freely Disclose:</strong> {Array.isArray(persona.freely_disclose) ? persona.freely_disclose.join(', ') : 'None'}</p>
+                <p><strong>If Asked:</strong> {Array.isArray(persona.disclose_if_asked) ? persona.disclose_if_asked.join(', ') : 'None'}</p>
+                <p><strong>Resist:</strong> {Array.isArray(persona.resist_disclosing) ? persona.resist_disclosing.join(', ') : 'None'}</p>
+            </div>
+        </div>
+    );
+};
+
+const CaseDetailView = ({ caseData }) => {
+    return (
+        <div className="eval-detail-block case-detail-view">
+            <div style={{ marginBottom: '1.5rem' }}>
+                <h3 style={{ margin: '0 0 0.5rem 0', color: 'var(--primary)' }}>{caseData.title}</h3>
+                <p style={{ margin: 0, color: 'var(--text-muted)', fontSize: '0.9rem' }}>{caseData.subtitle}</p>
+            </div>
+
+            <div className="case-info-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', marginBottom: '1.5rem' }}>
+                <div className="info-item">
+                    <span className="info-label">Condition:</span>
+                    <span className="info-value">{caseData.condition}</span>
+                </div>
+                <div className="info-item">
+                    <span className="info-label">Difficulty:</span>
+                    <span className="info-value">{caseData.difficulty}</span>
+                </div>
+                <div className="info-item">
+                    <span className="info-label">Duration:</span>
+                    <span className="info-value">{caseData.duration} min</span>
+                </div>
+            </div>
+
+            <div className="case-section" style={{ marginBottom: '1.2rem' }}>
+                <h4 style={{ margin: '0 0 0.5rem 0', fontSize: '1rem' }}>Objective</h4>
+                <p style={{ margin: 0, fontSize: '0.9rem', lineHeight: 1.5 }}>{caseData.objective}</p>
+            </div>
+
+            <div className="case-section" style={{ marginBottom: '1.2rem' }}>
+                <h4 style={{ margin: '0 0 0.5rem 0', fontSize: '1rem' }}>Dynamics</h4>
+                <p style={{ margin: 0, fontSize: '0.9rem', lineHeight: 1.5 }}>{caseData.dynamics}</p>
+            </div>
+
+            {caseData.patient_cues && (
+                <div className="case-section">
+                    <h4 style={{ margin: '0 0 0.5rem 0', fontSize: '1rem' }}>Patient Cues</h4>
+                    <pre style={{ margin: 0, fontSize: '0.8rem', background: '#f8f9fa', padding: '0.75rem', borderRadius: '0.5rem', overflowX: 'auto', whiteSpace: 'pre-wrap' }}>
+                        {JSON.stringify(caseData.patient_cues, null, 2)}
+                    </pre>
+                </div>
+            )}
+        </div>
     );
 };
 
@@ -335,7 +453,7 @@ const ConversationView = ({ messages }) => {
 
 const TraineeEvalView = ({ evaluation }) => {
     const sd = evaluation.score_data || {};
-    const pct = typeof sd.percent === 'number' ? sd.percent.toFixed(1) : '—';
+    const pct = typeof sd.percent === 'number' ? (sd.percent * 100).toFixed(1) : '—';
     const passed = sd.pass;
     const total = sd.total_score ?? '—';
     const possible = sd.total_possible ?? '—';
@@ -374,7 +492,7 @@ const TraineeEvalView = ({ evaluation }) => {
                                 </td>
                                 <td>{it.desc || it.id || ''}</td>
                                 <td style={{ fontFamily: 'monospace', fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                                    {it.score ?? 0}/{it.max_score ?? 1}
+                                    {it.points_awarded ?? 0}/{it.weight ?? 1}
                                 </td>
                             </tr>
                         ))}

@@ -170,7 +170,7 @@ async def _judge_single_item_async(
         }
 
         system_prompt = (
-            "You are a strict psychiatry OSCE examiner grading a trainee's clinical interview.\n"
+            f"You are a strict psychiatry OSCE examiner grading a trainee's clinical interview in {language}.\n"
             "\n"
             "REASONING-FIRST CHAIN OF THOUGHT:\n"
             "1. ANALYZE: Review the rubric item and read through the full conversation turn by turn.\n"

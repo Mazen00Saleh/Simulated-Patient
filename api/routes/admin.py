@@ -8,7 +8,7 @@ Admin endpoints:
 from __future__ import annotations
 
 from fastapi import APIRouter, HTTPException, status
-from api.database import _sessions, _messages, _evaluations, get_analytics_data, _serialize
+from api.database import _sessions, _messages, _evaluations, _cases, _db, get_analytics_data, _serialize
 
 router = APIRouter(prefix="/admin", tags=["Admin"])
 
@@ -37,10 +37,15 @@ def list_sessions():
 
 @router.get("/sessions/{session_id}")
 def get_session_detail(session_id: str):
-    """Return full session details: metadata, conversation history, and evaluations."""
+    """Return full session details: metadata, conversation history, evaluations, and case data."""
     session = _sessions().find_one({"session_id": session_id}, {"_id": 0})
     if not session:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Session not found.")
+
+    case_id = session.get("case_id")
+    case = None
+    if case_id:
+        case = _cases().find_one({"case_id": case_id}, {"_id": 0})
 
     messages = list(
         _messages().find(
@@ -62,6 +67,7 @@ def get_session_detail(session_id: str):
         "session": _serialize(session),
         "messages": [_serialize(m) for m in messages],
         "evaluations": [_serialize(e) for e in evaluations],
+        "case": _serialize(case) if case else None,
     }
 
 
