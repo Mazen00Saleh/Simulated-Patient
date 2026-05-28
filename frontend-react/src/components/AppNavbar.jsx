@@ -30,7 +30,7 @@ const AppNavbar = () => {
         <div className="nav-links nav-auth-container">
           {isAuthenticated ? (
             <>
-              <span className="nav-greeting">Hi, {user?.name?.split(' ')[0]}</span>
+              <span className="nav-greeting">Hi, {user?.name}</span>
               <button
                 onClick={handleLogout}
                 className="btn btn-sm btn-logout"
